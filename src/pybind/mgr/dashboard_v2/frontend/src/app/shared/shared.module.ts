@@ -4,6 +4,7 @@ import { AuthService } from './services/auth.service';
 import { AuthStorageService } from './services/auth-storage.service';
 import { AuthGuardService } from './services/auth-guard.service';
 import { EmptyComponent } from './empty/empty.component';
+import { PoolService } from './services/pool.service';
 
 @NgModule({
   imports: [
@@ -13,7 +14,8 @@ import { EmptyComponent } from './empty/empty.component';
   providers: [
     AuthService,
     AuthStorageService,
-    AuthGuardService
+    AuthGuardService,
+    PoolService
   ]
 })
 export class SharedModule { }

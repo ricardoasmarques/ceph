@@ -1,0 +1,70 @@
+<table class="table table-bordered">
+  <thead>
+  <tr>
+    <th>
+      Name
+    </th>
+    <th>
+      ID
+    </th>
+    <th>
+      Used
+    </th>
+    <th>
+      Applications
+    </th>
+    <th>
+      Placement groups
+    </th>
+    <th>
+      Replica size
+    </th>
+    <th>
+      Erasure code profile
+    </th>
+    <th>
+      Last Change
+    </th>
+    <th>
+      Type
+    </th>
+    <th>
+      Crush ruleset
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let pool of pools">
+    <td>
+      {{ pool.name }}
+    </td>
+    <td>
+      {{ pool.id }}
+    </td>
+    <td>
+      {{ pool.percent_used | number: '1.2-2' }}%
+    </td>
+    <td>
+      {{ pool.application_metadata | keys }}
+    </td>
+    <td>
+      {{ pool.pg_num }}
+    </td>
+    <td>
+      {{ pool.size }}
+    </td>
+    <td>
+      {{ pool.erasure_code_profile }}
+    </td>
+    <td>
+      {{ pool.last_change }}
+    </td>
+    <td>
+      {{ pool.type }}
+    </td>
+    <td>
+      {{ pool.crush_ruleset }}
+    </td>
+  </tr>
+  </tbody>
+</table>
