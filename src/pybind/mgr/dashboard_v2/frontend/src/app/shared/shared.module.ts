@@ -5,6 +5,8 @@ import { AuthStorageService } from './services/auth-storage.service';
 import { AuthGuardService } from './services/auth-guard.service';
 import { PipesModule } from './pipes/pipes.module';
 import { HostService } from './services/host.service';
+import { PoolService } from './services/pool.service';
+import { RbdService } from './services/rbd.service';
 
 @NgModule({
   imports: [
@@ -16,7 +18,9 @@ import { HostService } from './services/host.service';
     AuthService,
     AuthStorageService,
     AuthGuardService,
-    HostService
+    HostService,
+    PoolService,
+    RbdService
   ],
   exports: [
     PipesModule
