@@ -31,12 +31,10 @@ class RgwDaemon(RESTController):
                         try:
                             status = json.loads(status['json'])
                         except ValueError:
-                            msg = "{0} had invalid status json"
-                            logger.warning(msg.format(service['id']))
+                            logger.warning("%s had invalid status json", service['id'])
                             status = {}
                     else:
-                        msg = '{0} has no key "json" in status'
-                        logger.warning(msg.format(service['id']))
+                        logger.warning('%s has no key "json" in status', service['id'])
 
                     # extract per-daemon service data and health
                     daemon = {
@@ -70,12 +68,10 @@ class RgwDaemon(RESTController):
                         try:
                             status = json.loads(status['json'])
                         except ValueError:
-                            msg = "{0} had invalid status json"
-                            logger.warning(msg.format(service['id']))
+                            logger.warning("%s had invalid status json", service['id'])
                             status = {}
                     else:
-                        msg = '{0} has no key "json" in status'
-                        logger.warning(msg.format(service['id']))
+                        logger.warning('%s has no key "json" in status', service['id'])
 
                     daemon['rgw_metadata'] = metadata
                     daemon['rgw_status'] = status
