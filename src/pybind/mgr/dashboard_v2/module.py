@@ -160,10 +160,10 @@ class Module(MgrModule):
 
         def __init__(self, mgrmod):
             self.ctrls = load_controllers(mgrmod)
-            logger.debug('Loaded controllers: {}'.format(self.ctrls))
+            logger.debug('Loaded controllers: %s', self.ctrls)
             for ctrl in self.ctrls:
-                logger.info('Adding controller: {} -> /api/{}'
-                            .format(ctrl.__name__, ctrl._cp_path_))
+                logger.info('Adding controller: %s -> /api/%s', ctrl.__name__,
+                            ctrl._cp_path_)
                 ins = ctrl()
                 setattr(Module.ApiRoot, ctrl._cp_path_, ins)
 

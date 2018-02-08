@@ -66,8 +66,8 @@ class Auth(RESTController):
     def check_auth():
         username = cherrypy.session.get(Session.USERNAME)
         if not username:
-            logger.debug('Unauthorized access to {}'.format(cherrypy.url(
-                relative='server')))
+            logger.debug('Unauthorized access to %s',
+                         cherrypy.url(relative='server'))
             raise cherrypy.HTTPError(401, 'You are not authorized to access '
                                           'that resource')
         now = time.time()

@@ -77,8 +77,8 @@ class CephCluster(NodbModel, SendCommandApiMixin):
                 for flag in set(value) - set(original.osd_flags):
                     api.osd_set(flag)
             else:
-                logger.warning('Tried to set "{}" to "{}" on rbd "{}", which is not '
-                               'supported'.format(key, value, self.config_file_path))
+                logger.warning('Tried to set "%s" to "%s" on rbd "%s", which is not '
+                               'supported', key, value, self.config_file_path)
 
         super(CephCluster, self).save(force_insert=force_insert, force_update=force_update,
                                       using=using, update_fields=update_fields)

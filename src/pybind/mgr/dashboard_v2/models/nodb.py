@@ -476,8 +476,8 @@ class LazyProperty(object):
             try:
                 self.eval_func(instance, query_set, self.field_names)
             except self.catch_exceptions as _:
-                logger.exception('failed to populate Field "{}" of {} ({})'
-                                 .format(self.field_name, str(instance), instance.__class__))
+                logger.exception('failed to populate Field "%s" of %s (%s)',
+                                 self.field_name, str(instance), instance.__class__)
                 fields = instance.__class__.make_model_args({}, fields_force_none=self.field_names)
                 for field_name, value in list(fields.items()):
                     setattr(instance, field_name, value)

@@ -51,7 +51,8 @@ def logged(func):
         try:
             retval = func(*args, **kwargs)
         finally:
-            logger.debug('{}, {}, {} -> {}'.format(func.__name__, args, kwargs, retval))
+            logger.debug('%s, %s, %s -> %s', func.__name__, args, kwargs,
+                         retval)
         return retval
     return wrapper
 
@@ -286,10 +287,12 @@ class SendCommandApi(object):  # pylint: disable=R0904
                 raise
 
             if 'mon_allow_pool_delete' not in str(e):
-                logger.info('Expected to find "mon_allow_pool_delete" in "{}"'.format(str(e)))
+                logger.info('Expected to find "mon_allow_pool_delete" in "%s"',
+                            str(e))
                 raise
 
-            logger.info('Executing fallback for mon_allow_pool_delete=false\n{}'.format(str(e)))
+            logger.info('Executing fallback for mon_allow_pool_delete=false\n%s',
+                        str(e))
 
             mon_names = [mon['name'] for mon in
                          self._call_mon_command('mon dump')['mons']]  # ['a', 'b', 'c']
@@ -668,7 +671,7 @@ class SendCommandApi(object):  # pylint: disable=R0904
         self.mgr.send_command(result, 'mon', '', argdict, '')
 
         ret, out, err = result.wait()
-        logger.debug('mod command {}, {}, {}'.format(cmd, argdict, err))
+        logger.debug('mod command %s, %s, %s', cmd, argdict, err)
 
         if ret == 0:
             if output_format == 'json':
