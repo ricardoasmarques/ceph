@@ -15,6 +15,8 @@ from errno import errorcode
 import six
 import cherrypy
 
+from . import logger
+
 
 def ApiController(path):
     def decorate(cls):
@@ -325,6 +327,7 @@ class SessionExpireAtBrowserCloseTool(cherrypy.Tool):
         # Shall the cookie expire at browser close?
         expire_at_browser_close = cherrypy.session.get(
             Session.EXPIRE_AT_BROWSER_CLOSE, True)
+        logger.debug("expire at browser close: %s", expire_at_browser_close)
         if expire_at_browser_close:
             # Get the cookie and its name.
             cookie = cherrypy.response.cookie
@@ -332,6 +335,7 @@ class SessionExpireAtBrowserCloseTool(cherrypy.Tool):
                 'tools.sessions.name', Session.NAME)
             # Make the cookie a session cookie by purging the
             # fields 'expires' and 'max-age'.
+            logger.debug("expire at browser close: removing 'expires' and 'max-age'")
             if name in cookie:
                 del cookie[name]['expires']
                 del cookie[name]['max-age']
@@ -357,6 +361,7 @@ class NotificationQueue(threading.Thread):
                 return
             cls._running = True
             cls._instance = NotificationQueue()
+        logger.debug("starting notification queue")
         cls._instance.start()
 
     @classmethod
@@ -370,7 +375,9 @@ class NotificationQueue(threading.Thread):
             cls._running = False
         with cls._cond:
             cls._cond.notify()
+        logger.debug("waiting for notification queue to finish")
         instance.join()
+        logger.debug("notification queue stopped")
 
     @classmethod
     def register(cls, func, types=None):
@@ -412,8 +419,10 @@ class NotificationQueue(threading.Thread):
                 listener(notify_value)
 
     def run(self):
+        logger.debug("notification queue started")
         while self._running:
             private_buffer = []
+            logger.debug("NQ: processing queue: %s", len(self._queue))
             try:
                 while True:
                     private_buffer.append(self._queue.popleft())
@@ -423,5 +432,7 @@ class NotificationQueue(threading.Thread):
             with self._cond:
                 self._cond.wait(1.0)
         # flush remaining events
+        logger.debug("NQ: flush remaining events: %s", len(self._queue))
         self.notify_listeners(self._queue)
         self._queue.clear()
+        logger.debug("notification queue finished")
