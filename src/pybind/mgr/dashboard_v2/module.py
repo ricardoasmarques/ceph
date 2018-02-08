@@ -133,6 +133,7 @@ class Module(MgrModule):
         logger.info('Engine done')
 
     def shutdown(self):
+        super(Module, self).shutdown()
         logger.info('Stopping server...')
         NotificationQueue.stop()
         cherrypy.engine.exit()
