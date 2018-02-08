@@ -14,6 +14,12 @@ except ImportError:
 import cherrypy
 from mgr_module import MgrModule
 
+if 'COVERAGE_ENABLED' in os.environ:
+    import coverage
+    _cov = coverage.Coverage(config_file="{}/.coveragerc".format(os.path.dirname(__file__)))
+    _cov.start()
+
+# pylint: disable=wrong-import-position
 from .controllers.auth import Auth
 from .tools import load_controllers, json_error_page, SessionExpireAtBrowserCloseTool, \
                    NotificationQueue
@@ -43,6 +49,12 @@ class Module(MgrModule):
                    'name=password,type=CephString',
             'desc': 'Set the login credentials',
             'perm': 'w'
+        },
+        {
+            'cmd': 'dashboard set-session-expire '
+                   'name=seconds,type=CephInt',
+            'desc': 'Set the session expire timeout',
+            'perm': 'w'
         }
     ]
     COMMANDS.extend(options_command_list())
@@ -56,7 +68,7 @@ class Module(MgrModule):
         logger.logger = self._logger
         self._url_prefix = ''
 
-    def configure_module(self, in_unittest=False):
+    def configure_module(self):
         Settings.mgr = self  # injects module instance into Settings class
 
         server_addr = self.get_localized_config('server_addr', '::')
@@ -85,14 +97,11 @@ class Module(MgrModule):
 
         # Apply the 'global' CherryPy configuration.
         config = {
-            'engine.autoreload.on': False
+            'engine.autoreload.on': False,
+            'server.socket_host': server_addr,
+            'server.socket_port': int(server_port),
+            'error_page.default': json_error_page
         }
-        if not in_unittest:
-            config.update({
-                'server.socket_host': server_addr,
-                'server.socket_port': int(server_port),
-                'error_page.default': json_error_page
-            })
         cherrypy.config.update(config)
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -109,6 +118,8 @@ class Module(MgrModule):
         cherrypy.tree.mount(Module.StaticRoot(), '/', config=config)
 
     def serve(self):
+        if 'COVERAGE_ENABLED' in os.environ:
+            _cov.start()
         self.configure_module()
 
         cherrypy.engine.start()
@@ -116,6 +127,9 @@ class Module(MgrModule):
         logger.info('Waiting for engine...')
         self.log.info('Waiting for engine...')
         cherrypy.engine.block()
+        if 'COVERAGE_ENABLED' in os.environ:
+            _cov.stop()
+            _cov.save()
         logger.info('Engine done')
 
     def shutdown(self):
@@ -131,6 +145,9 @@ class Module(MgrModule):
         if cmd['prefix'] == 'dashboard set-login-credentials':
             Auth.set_login_credentials(cmd['username'], cmd['password'])
             return 0, 'Username and password updated', ''
+        elif cmd['prefix'] == 'dashboard set-session-expire':
+            self.set_config('session-expire', str(cmd['seconds']))
+            return 0, 'Session expiration timeout updated', ''
 
         return (-errno.EINVAL, '', 'Command not found \'{0}\''
                 .format(cmd['prefix']))
