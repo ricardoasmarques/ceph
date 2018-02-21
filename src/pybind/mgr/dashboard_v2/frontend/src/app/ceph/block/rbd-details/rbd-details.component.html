@@ -1,0 +1,29 @@
+<div *ngFor="let selectedItem of selected">
+  <div class="panel panel-default tc_detailsTab">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        {{ selectedItem.name }}
+      </h3>
+    </div>
+    <div class="panel-body">
+      <dl class="dl-horizontal">
+        <dt>Name:</dt>
+        <dd>{{ selectedItem.name }}</dd>
+        <dt>Size:</dt>
+        <dd>{{ selectedItem.size | dimlessBinary }}</dd>
+        <dt>Objects:</dt>
+        <dd>{{ selectedItem.num_objs | dimless }}</dd>
+        <dt>Object size:</dt>
+        <dd>{{ selectedItem.obj_size | dimlessBinary }}</dd>
+        <dt>Features:</dt>
+        <dd>{{ selectedItem.features_name }}</dd>
+        <dt>Parent:</dt>
+        <dd>{{ selectedItem.parent | empty }}</dd>
+        <dt>Block name prefix:</dt>
+        <dd>{{ selectedItem.block_name_prefix }}</dd>
+        <dt>Order:</dt>
+        <dd>{{ selectedItem.order }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
