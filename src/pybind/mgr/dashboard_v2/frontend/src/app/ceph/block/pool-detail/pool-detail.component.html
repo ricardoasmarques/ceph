@@ -14,5 +14,8 @@
 <cd-table [data]="images"
           columnMode="flex"
           [columns]="columns"
+          identifier="name"
+          [detailsComponent]="'RbdDetailsComponent'"
+          [beforeShowDetails]="beforeShowDetails"
           (fetchData)="loadImages()">
 </cd-table>
