@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { ConfigurationService } from './configuration.service';
 import { FormatterService } from './formatter.service';
 import { RbdMirroringService } from './rbd-mirroring.service';
+import { RbdService } from './rbd.service';
 import { SummaryService } from './summary.service';
 import { TcmuIscsiService } from './tcmu-iscsi.service';
 
@@ -15,7 +16,8 @@ import { TcmuIscsiService } from './tcmu-iscsi.service';
     SummaryService,
     TcmuIscsiService,
     ConfigurationService,
-    RbdMirroringService
+    RbdMirroringService,
+    RbdService
   ]
 })
 export class ServicesModule { }
