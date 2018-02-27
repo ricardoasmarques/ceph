@@ -15,10 +15,16 @@ class RbdTest(DashboardTestCase):
         cls._rbd_cmd(['create', '--size=1G', 'img1'])
         cls._rbd_cmd(['create', '--size=2G', 'img2'])
 
+        cls._ceph_cmd(['osd', 'pool', 'create', 'data_pool', '12', '12', 'erasure'])
+        cls._ceph_cmd(['osd', 'pool', 'application', 'enable', 'data_pool', 'rbd'])
+        cls._ceph_cmd(['osd', 'pool', 'set', 'data_pool', 'allow_ec_overwrites', 'true'])
+
     @classmethod
     def tearDownClass(cls):
         super(RbdTest, cls).tearDownClass()
         cls._ceph_cmd(['osd', 'pool', 'delete', 'rbd', 'rbd', '--yes-i-really-really-mean-it'])
+        cls._ceph_cmd(['osd', 'pool', 'delete', 'data_pool', 'data_pool',
+                       '--yes-i-really-really-mean-it'])
 
     @authenticate
     def test_list(self):
@@ -40,3 +46,62 @@ class RbdTest(DashboardTestCase):
         self.assertEqual(img2['obj_size'], 4194304)
         self.assertEqual(img2['features_name'],
                          'deep-flatten, exclusive-lock, fast-diff, layering, object-map')
+
+    @authenticate
+    def test_create(self):
+        rbd_name = 'test_rbd'
+        data = {'pool_name': 'rbd',
+                'name': rbd_name,
+                'size': 10240}
+        self._post('/api/rbd', data)
+        self.assertStatus(201)
+        self.assertJsonBody({"success": True})
+
+        # TODO: change to GET the specific RBD instead of the list as soon as it is available?
+        get_res = self._get('/api/rbd/rbd')
+        self.assertStatus(200)
+
+        for rbd in get_res['value']:
+            if rbd['name'] == rbd_name:
+                self.assertEqual(rbd['size'], 10240)
+                self.assertEqual(rbd['num_objs'], 1)
+                self.assertEqual(rbd['obj_size'], 4194304)
+                self.assertEqual(rbd['features_name'],
+                                 'deep-flatten, exclusive-lock, fast-diff, layering, object-map')
+                break
+
+    @authenticate
+    def test_create_rbd_in_data_pool(self):
+        rbd_name = 'test_rbd_in_data_pool'
+        data = {'pool_name': 'rbd',
+                'name': rbd_name,
+                'size': 10240,
+                'data_pool': 'data_pool'}
+        self._post('/api/rbd', data)
+        self.assertStatus(201)
+        self.assertJsonBody({"success": True})
+
+        # TODO: possibly change to GET the specific RBD (see above)
+        get_res = self._get('/api/rbd/rbd')
+        self.assertStatus(200)
+
+        for rbd in get_res['value']:
+            if rbd['name'] == rbd_name:
+                self.assertEqual(rbd['size'], 10240)
+                self.assertEqual(rbd['num_objs'], 1)
+                self.assertEqual(rbd['obj_size'], 4194304)
+                self.assertEqual(rbd['features_name'], 'data-pool, deep-flatten, exclusive-lock, '
+                                                       'fast-diff, layering, object-map')
+                break
+
+    @authenticate
+    def test_create_rbd_twice(self):
+        data = {'pool_name': 'rbd',
+                'name': 'test_rbd_twice',
+                'size': 10240}
+        self._post('/api/rbd', data)
+
+        self._post('/api/rbd', data)
+        self.assertStatus(400)
+        self.assertJsonBody({"success": False, "errno": 17,
+                             "detail": "[errno 17] error creating image"})
