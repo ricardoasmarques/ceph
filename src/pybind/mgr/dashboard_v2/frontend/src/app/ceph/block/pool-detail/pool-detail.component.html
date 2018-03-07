@@ -18,4 +18,13 @@
           [detailsComponent]="'RbdDetailsComponent'"
           [beforeShowDetails]="beforeShowDetails"
           (fetchData)="loadImages()">
+  <div class="table-actions">
+    <div class="btn-group" dropdown>
+      <button type="button"
+              class="btn btn-sm btn-primary"
+              routerLink="/rbd/add/{{ name }}">
+        <i class="fa fa-fw fa-plus"></i>Add image
+      </button>
+    </div>
+  </div>
 </cd-table>
