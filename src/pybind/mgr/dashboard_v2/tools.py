@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import collections
 import datetime
+import fnmatch
 import importlib
 import inspect
 import json
@@ -473,7 +474,14 @@ class NotificationQueue(threading.Thread):
         logger.debug("notification queue stopped")
 
     @classmethod
-    def register(cls, func, types=None):
+    def _registered_handler(cls, func, types):
+        for _, reg_func in cls._listeners[types]:
+            if reg_func == func:
+                return True
+        return False
+
+    @classmethod
+    def register(cls, func, types=None, priority=1):
         """Registers function to listen for notifications
 
         If the second parameter `types` is omitted, the function in `func`
@@ -482,16 +490,20 @@ class NotificationQueue(threading.Thread):
         Args:
             func (function): python function ex: def foo(val)
             types (str|list): the single type to listen, or a list of types
+            priority (int): the priority level (1=max, +inf=min)
         """
         with cls._lock:
             if not types:
-                cls._listeners[cls._ALL_TYPES_].add(func)
+                if not cls._registered_handler(func, cls._ALL_TYPES_):
+                    cls._listeners[cls._ALL_TYPES_].add((priority, func))
                 return
             if isinstance(types, str):
-                cls._listeners[types].add(func)
+                if not cls._registered_handler(func, types):
+                    cls._listeners[types].add((priority, func))
             elif isinstance(types, list):
                 for typ in types:
-                    cls._listeners[typ].add(func)
+                    if not cls._registered_handler(func, typ):
+                        cls._listeners[typ].add((priority, func))
             else:
                 raise Exception("types param is neither a string nor a list")
 
@@ -502,14 +514,15 @@ class NotificationQueue(threading.Thread):
             cls._cond.notify()
 
     @classmethod
-    def notify_listeners(cls, events):
+    def _notify_listeners(cls, events):
         for ev in events:
             notify_type, notify_value = ev
             with cls._lock:
                 listeners = list(cls._listeners[notify_type])
                 listeners.extend(cls._listeners[cls._ALL_TYPES_])
+            listeners.sort(key=lambda lis: lis[0])
             for listener in listeners:
-                listener(notify_value)
+                listener[1](notify_value)
 
     def run(self):
         logger.debug("notification queue started")
@@ -521,11 +534,207 @@ class NotificationQueue(threading.Thread):
                     private_buffer.append(self._queue.popleft())
             except IndexError:
                 pass
-            self.notify_listeners(private_buffer)
+            self._notify_listeners(private_buffer)
             with self._cond:
                 self._cond.wait(1.0)
         # flush remaining events
         logger.debug("NQ: flush remaining events: %s", len(self._queue))
-        self.notify_listeners(self._queue)
+        self._notify_listeners(self._queue)
         self._queue.clear()
         logger.debug("notification queue finished")
+
+
+# pylint: disable=too-many-arguments
+class TaskManager(object):
+    FINISHED_TASK_TTL = 60.0
+
+    VALUE_DONE = 0
+    VALUE_EXECUTING = 1
+    VALUE_EXCEPTION = 2
+
+    _executing_tasks = set()
+    _finished_tasks = set()
+    _lock = threading.Lock()
+
+    _task_local_data = threading.local()
+
+    @classmethod
+    def init(cls):
+        NotificationQueue.register(cls._handle_finished_task, 'cd_task_finished')
+
+    @classmethod
+    def _handle_finished_task(cls, task):
+        logger.info("TM: finished %s", task)
+        with cls._lock:
+            cls._executing_tasks.remove(task)
+            cls._finished_tasks.add(task)
+
+    @classmethod
+    def run(cls, namespace, metadata, fn, *args, **kwargs):
+        task = AsyncTask(namespace, metadata, fn, args, kwargs)
+        with cls._lock:
+            if task in cls._executing_tasks:
+                logger.debug("TM: task already executing: %s", task)
+                for t in cls._executing_tasks:
+                    if t == task:
+                        return t
+            logger.debug("TM: created %s", task)
+            cls._executing_tasks.add(task)
+        logger.info("TM: running %s", task)
+        task._run()
+        return task
+
+    @classmethod
+    def current_task(cls):
+        """
+        Returns the current task object.
+        This method should only be called from the task operation code.
+        """
+        return cls._task_local_data.task
+
+    @classmethod
+    def _cleanup_old_tasks(cls, task_list):
+        now = datetime.datetime.now()
+        to_remove = [t for t in task_list
+                     if now - datetime.datetime.fromtimestamp(t.end_time) >
+                     datetime.timedelta(seconds=cls.FINISHED_TASK_TTL)]
+        for task in to_remove:
+            cls._finished_tasks.remove(task)
+
+    @classmethod
+    def list(cls, ns_glob=None):
+        executing_tasks = []
+        finished_tasks = []
+        with cls._lock:
+            for task in cls._executing_tasks:
+                if not ns_glob or fnmatch.fnmatch(task.namespace, ns_glob):
+                    executing_tasks.append(task)
+            for task in cls._finished_tasks:
+                if not ns_glob or fnmatch.fnmatch(task.namespace, ns_glob):
+                    finished_tasks.append(task)
+            cls._cleanup_old_tasks(finished_tasks)
+        return executing_tasks, finished_tasks
+
+    @classmethod
+    def list_serialized(cls, ns_glob=None):
+        ex_t, fn_t = cls.list(ns_glob)
+        return [{
+            'namespace': t.namespace,
+            'metadata': t.metadata,
+            'begin_time': t.begin_time,
+            'progress': t.progress
+        } for t in ex_t if t.begin_time], [{
+            'namespace': t.namespace,
+            'metadata': t.metadata,
+            'begin_time': t.begin_time,
+            'end_time': t.end_time,
+            'latency': t.latency,
+            'progress': t.progress,
+            'success': not t.exception,
+            'ret_value': t.ret_value,
+            'exception': t.exception
+        } for t in fn_t]
+
+
+class AsyncTask(object):
+    # pylint: disable=too-many-instance-attributes
+
+    class ExecutorThread(threading.Thread):
+        def __init__(self, task):
+            super(AsyncTask.ExecutorThread, self).__init__()
+            self._task = task
+            self.event = threading.Event()
+
+        # pylint: disable=broad-except
+        def run(self):
+            TaskManager._task_local_data.task = self._task
+            try:
+                self._task.set_progress(0)
+                self._task.begin_time = time.time()
+                val = self._task.fn(*self._task.fn_args, **self._task.fn_kwargs)
+                self._task.end_time = time.time()
+            except Exception as ex:
+                logger.exception("Error while calling %s: ex=%s", self._task, str(ex))
+                with self._task.lock:
+                    self._task.end_time = time.time()
+                    self._task.ret_value = None
+                    self._task.exception = ex
+            else:
+                with self._task.lock:
+                    self._task.latency = self._task.end_time - self._task.begin_time
+                    self._task.ret_value = val
+                    self._task.exception = None
+                    self._task.set_progress(100, True)
+                logger.debug("execution of %s finished in: %s s", self._task, self._task.latency)
+            finally:
+                NotificationQueue.new_notification('cd_task_finished', self._task)
+                self.event.set()
+
+    def __init__(self, namespace, metadata, fn, args, kwargs):
+        self.namespace = namespace
+        self.metadata = metadata
+        self.fn = fn
+        self.fn_args = args
+        self.fn_kwargs = kwargs
+        self.executor_thread = None
+        self.event = threading.Event()
+        self.progress = None
+        self.ret_value = None
+        self.begin_time = None
+        self.end_time = None
+        self.latency = 0
+        self.exception = None
+        self.lock = threading.Lock()
+
+    def __hash__(self):
+        return hash((self.namespace, tuple(sorted(self.metadata.items()))))
+
+    def __eq__(self, other):
+        return self.namespace == self.namespace and self.metadata == self.metadata
+
+    def __str__(self):
+        return "Task(ns={}, md={})" \
+               .format(self.namespace, self.metadata)
+
+    def _run(self):
+        with self.lock:
+            if self.executor_thread is None:
+                self.executor_thread = AsyncTask.ExecutorThread(self)
+                self.executor_thread.start()
+
+    def wait(self, timeout=None):
+        with self.lock:
+            if self.executor_thread is None:
+                raise Exception("wait cannot be called before _run")
+            ev = self.executor_thread.event
+
+        success = ev.wait(timeout=timeout)
+        with self.lock:
+            if success:
+                # the action executed within the timeout
+                if self.exception:
+                    # execution raised an exception
+                    return TaskManager.VALUE_EXCEPTION, self.exception
+                return TaskManager.VALUE_DONE, self.ret_value
+            # the action is still executing
+            return TaskManager.VALUE_EXECUTING, None
+
+    def inc_progress(self, delta, in_lock=False):
+        if not isinstance(delta, int) or delta < 0:
+            raise Exception("Progress delta value must be a positive integer")
+        if not in_lock:
+            self.lock.acquire()
+        prog = self.progress + delta
+        self.progress = prog if prog <= 100 else 100
+        if not in_lock:
+            self.lock.release()
+
+    def set_progress(self, percentage, in_lock=False):
+        if not isinstance(percentage, int) or percentage < 0 or percentage > 100:
+            raise Exception("Progress value must be in percentage "
+                            "(0 <= percentage <= 100)")
+        if not in_lock:
+            self.lock.acquire()
+        self.progress = percentage
+        if not in_lock:
+            self.lock.release()
