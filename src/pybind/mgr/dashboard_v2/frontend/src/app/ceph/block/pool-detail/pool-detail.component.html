@@ -1,9 +1,11 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li i18n
-        class="breadcrumb-item">Block</li>
+        class="breadcrumb-item">Block
+    </li>
     <li i18n
-        class="breadcrumb-item">Pools</li>
+        class="breadcrumb-item">Pools
+    </li>
     <li class="breadcrumb-item active"
         aria-current="page">{{ name }}</li>
   </ol>
@@ -16,15 +18,32 @@
           [columns]="columns"
           identifier="name"
           [detailsComponent]="'RbdDetailsComponent'"
-          [beforeShowDetails]="beforeShowDetails"
+          [beforeShowDetails]="beforeShowDetails()"
           (fetchData)="loadImages()">
   <div class="table-actions">
     <div class="btn-group" dropdown>
+      <!--button type="button"
+              class="btn btn-sm btn-primary"
+              routerLink="/rbd/add/{{ name }}">
+        <i class="fa fa-fw fa-plus"></i>Add image
+      </button-->
       <button type="button"
               class="btn btn-sm btn-primary"
               routerLink="/rbd/add/{{ name }}">
         <i class="fa fa-fw fa-plus"></i>Add image
       </button>
+      <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+        <span class="caret"></span>
+        <span class="sr-only"></span>
+      </button>
+      <ul *dropdownMenu class="dropdown-menu" role="menu">
+        <li role="menuitem">
+          <a class="dropdown-item"
+             (click)="deleteAction()">
+           <i class="fa fa-fw fa-trash-o"></i>Delete
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </cd-table>
