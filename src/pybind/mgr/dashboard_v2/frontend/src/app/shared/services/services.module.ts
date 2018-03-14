@@ -8,6 +8,8 @@ import { PoolService } from './pool.service';
 import { RbdMirroringService } from './rbd-mirroring.service';
 import { RbdService } from './rbd.service';
 import { SummaryService } from './summary.service';
+import { TaskManagerMessageService } from './task-manager-message.service';
+import { TaskManagerService } from './task-manager.service';
 import { TcmuIscsiService } from './tcmu-iscsi.service';
 
 @NgModule({
@@ -21,7 +23,9 @@ import { TcmuIscsiService } from './tcmu-iscsi.service';
     RbdMirroringService,
     PoolService,
     RbdService,
-    FormService
+    FormService,
+    TaskManagerService,
+    TaskManagerMessageService
   ]
 })
 export class ServicesModule { }

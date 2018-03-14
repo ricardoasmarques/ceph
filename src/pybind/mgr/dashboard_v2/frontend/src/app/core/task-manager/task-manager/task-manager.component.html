@@ -1,0 +1,152 @@
+<ng-template #popTemplate>
+
+
+  <div *ngIf="executingTasks.length > 0">
+    <div class="separator">
+      EXECUTING
+    </div>
+    <hr>
+    <div *ngFor="let executingTask of executingTasks">
+      <table>
+        <tr>
+          <td>{{ getDescription(executingTask.namespace, executingTask.metadata) }}</td>
+          <td class="text-right italic" *ngIf="executingTask.progress"><span>{{ executingTask.progress }} %</span></td>
+        </tr>
+        <tr>
+          <td colspan="2" class="text-right"><span class="text-muted">{{ executingTask.begin_time | relativeDate }}</span></td>
+        </tr>
+      </table>
+      <hr>
+    </div>
+  </div>
+
+  <div *ngIf="finishedTasks.length > 0">
+    <div class="separator">
+      FINISHED
+    </div>
+    <hr>
+    <div *ngFor="let finishedTask of finishedTasks">
+      <table>
+        <tr>
+          <td>{{ getDescription(finishedTask.namespace, finishedTask.metadata) }}</td>
+          <td class="text-right">
+          </td>
+        </tr>
+        <tr>
+          <td class="text-right">
+            <span *ngIf="finishedTask.errorMessage">
+              <i class="fa fa-exclamation-triangle text-danger"
+                 tooltip="{{ finishedTask.errorMessage }}"
+                 placement="left"
+                 container="body"></i>&nbsp;
+            </span>
+            <span *ngIf="!finishedTask.errorMessage">
+              <i class="fa fa-check text-success"></i>
+            </span>
+            &nbsp;
+            <span class="text-muted">A minute ago</span>
+          </td>
+        </tr>
+      </table>
+      <hr>
+    </div>
+  </div>
+
+  <div *ngIf="executingTasks.length === 0 && finishedTasks.length === 0">
+    <div class="message">
+      There are no background tasks.
+    </div>
+  </div>
+
+
+  <!-- PROTOTYPE
+  <div class="separator">
+    EXECUTING
+  </div>
+  <hr>
+  <table>
+    <tr>
+      <td>Create RBD <strong>myrbd2</strong></td>
+      <td class="text-right italic">20%</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="text-right"><span class="text-muted">Seconds ago</span></td>
+    </tr>
+  </table>
+  <hr>
+
+  <div class="separator">
+    FINISHED
+  </div>
+  <hr>
+  <table>
+    <tr>
+      <td>Create RBD <strong>myrbd1</strong></td>
+      <td class="text-right">
+      </td>
+    </tr>
+    <tr>
+      <td class="text-right">
+        <i class="fa fa-exclamation-triangle text-danger"
+           tooltip="Some error message"
+           placement="left"
+           container="body"></i>&nbsp;
+        <span class="text-muted">A minute ago</span>
+      </td>
+    </tr>
+  </table>
+  <hr>
+
+  <div *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11]">
+    <table>
+      <tr >
+        <td>Create RBD <strong>myrbd0</strong></td>
+        <td class="text-right">
+      </td>
+      </tr>
+      <tr>
+        <td class="text-right">
+          <i class="fa fa-check text-success"></i>&nbsp;
+          <span class="text-muted">2 minutes ago</span>
+        </td>
+      </tr>
+    </table>
+    <hr>
+  </div>
+  -->
+
+
+  <!--div class="task">
+    Create RBD `myrbd`.<br>
+    <span class="text-muted pull-right">A minute ago</span>
+  </div>
+
+  <h3>Finished</h3-->
+
+  <!--h3>Executing Tasks</h3>
+  <hr>
+  <p *ngIf="executingTasks.length == 0"
+     class="text-muted">Empty</p>
+  <div *ngFor="let executingTask of executingTasks">
+    {{ executingTask.namespace }}
+    <span class="text-muted pull-right">{{ executingTask.begin_time | relativeDate }}</span>
+    <hr>
+  </div>
+
+  <h3>Finished Tasks</h3>
+  <div *ngFor="let finishedTask of finishedTasks">
+    {{ finishedTask.namespace }}
+    <span class="text-muted pull-right">{{ finishedTask.begin_time | relativeDate }}</span>
+    <hr>
+  </div-->
+</ng-template>
+<!-- popoverTitle="Background-Tasks"-->
+<a [popover]="popTemplate"
+   placement="bottom"
+   container="body"
+   outsideClick="true"
+   isOpen="true">
+  <i class="fa"
+     [ngClass]="icon"></i>
+  Background-Tasks<span *ngIf="executingTasks.length > 0"> ({{ executingTasks.length }})</span>
+</a>

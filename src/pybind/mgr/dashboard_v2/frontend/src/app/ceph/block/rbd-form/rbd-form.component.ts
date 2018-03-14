@@ -10,6 +10,7 @@ import { FormService } from '../../../shared/services/form.service';
 import { FormatterService } from '../../../shared/services/formatter.service';
 import { PoolService } from '../../../shared/services/pool.service';
 import { RbdService } from '../../../shared/services/rbd.service';
+import { TaskManagerService } from '../../../shared/services/task-manager.service';
 import { RbdFormRequestModel } from './rbd-form-request.model';
 import { RbdFormModel } from './rbd-form.model';
 
@@ -47,7 +48,8 @@ export class RbdFormComponent implements OnInit {
               private formatter: FormatterService,
               private toastr: ToastsManager,
               private el: ElementRef,
-              private formService: FormService) {
+              private formService: FormService,
+              private taskManagerService: TaskManagerService) {
     this.createForm();
     this.features = {
       'deep-flatten': {
@@ -281,7 +283,7 @@ export class RbdFormComponent implements OnInit {
       }
       stripingCountControl.setErrors(stripingCountControlErrors);
     };
-  }
+  }have
 
   deepBoxCheck(key, checked) {
     _.forIn(this.features, (details, feature) => {
@@ -350,7 +352,14 @@ export class RbdFormComponent implements OnInit {
     }
     const request = this.createRequest();
     this.rbdService.create(request).then((resp) => {
-      this.toastr.success(`RBD <strong>${request.name}</strong> have been created successfully`);
+      console.log(resp);
+      const async = true; // FIXME check is resp.status === DONE or EXECUTING
+      if (async) {
+        this.taskManagerService.registerForNotification('rbd/create',
+          {'pool_name': request.pool_name, 'rbd_name': request.name});
+      } else {
+        this.toastr.info(`RBD <strong>${request.name}</strong> have been created successfully`);
+      }
       this.router.navigate([`/block/pool/${this.pool}`]);
     }).catch((resp) => {
       this.toastr.error(this.getErrorMessage(resp.error, request), 'Failted to create RBD image');

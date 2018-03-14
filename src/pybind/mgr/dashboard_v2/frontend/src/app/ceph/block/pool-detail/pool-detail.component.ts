@@ -7,6 +7,7 @@ import { CdTableSelection } from '../../../shared/models/cd-table-selection';
 import { DimlessBinaryPipe } from '../../../shared/pipes/dimless-binary.pipe';
 import { DimlessPipe } from '../../../shared/pipes/dimless.pipe';
 import { RbdService } from '../../../shared/services/rbd.service';
+import { SummaryService } from '../../../shared/services/summary.service';
 
 @Component({
   selector: 'cd-pool-detail',
@@ -21,16 +22,20 @@ export class PoolDetailComponent implements OnInit, OnDestroy {
   routeParamsSubscribe: any;
   viewCacheStatus: ViewCacheStatus;
 
+  // TODO declare a type for Tasks
+  executingTasks: Array<any> = [];
+
   constructor(
     private route: ActivatedRoute,
     private rbdService: RbdService,
     dimlessBinaryPipe: DimlessBinaryPipe,
-    dimlessPipe: DimlessPipe
+    dimlessPipe: DimlessPipe,
+    private summaryService: SummaryService
   ) {
     this.columns = [
       {
         name: 'Name',
-        prop: 'name',
+        prop: 'name_descr',
         flexGrow: 2
       },
       {
@@ -73,6 +78,16 @@ export class PoolDetailComponent implements OnInit, OnDestroy {
       this.images = [];
       this.retries = 0;
     });
+    this.summaryService.summaryData$.subscribe((data: any) => {
+      const executingTasks = [];
+      data.executing_tasks.forEach((executingTask) => {
+        if (executingTask.namespace === 'rbd/create' &&
+            executingTask.metadata.pool_name === this.name) {
+          executingTasks.push(executingTask);
+        }
+      });
+      this.executingTasks = executingTasks;
+    });
   }
 
   ngOnDestroy() {
@@ -83,7 +98,17 @@ export class PoolDetailComponent implements OnInit, OnDestroy {
     this.rbdService.getPoolImages(this.name).then(
       resp => {
         this.viewCacheStatus = resp.status;
+        resp.value.forEach((image) => {
+          image.name_descr = image.name;
+        });
         this.images = resp.value;
+        this.executingTasks.forEach((executingTask) => {
+          this.images.push({
+            name_descr: '<i class="fa fa-spinner fa-spin fa-fw"></i> ' +
+              executingTask.metadata.rbd_name +
+              '<span class="italic">(creating...)</span>'
+          });
+        });
       },
       () => {
         this.viewCacheStatus = ViewCacheStatus.ValueException;

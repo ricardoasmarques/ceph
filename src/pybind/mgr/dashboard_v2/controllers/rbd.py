@@ -4,7 +4,9 @@ from __future__ import absolute_import
 import math
 import cherrypy
 import rbd
+import time
 
+from ..tools import TaskManager
 from .. import mgr
 from ..tools import ApiController, AuthRequired, RESTController, ViewCache
 
@@ -97,9 +99,11 @@ class Rbd(RESTController):
             raise value
         return {'status': status, 'value': value}
 
-    def create(self, data):
+    def do_create(self, data):
         if not self.rbd:
             self.rbd = rbd.RBD()
+
+        time.sleep(15)
 
         # Get input values
         name = data.get('name')
@@ -129,3 +133,7 @@ class Rbd(RESTController):
             cherrypy.response.status = 400
             return {'success': False, 'detail': str(e), 'errno': e.errno}
         return {'success': True}
+
+    def create(self, data):
+        task = TaskManager.run('rbd/create', {'pool_name': data.get('pool_name'), 'rbd_name': data.get('name')}, self.do_create, data)
+        return task.wait(5)
