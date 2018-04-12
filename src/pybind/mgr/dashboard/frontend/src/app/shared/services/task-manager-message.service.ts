@@ -72,6 +72,7 @@ export class TaskManagerMessageService {
                     `has been updated successfully`,
       () => {
         return {
+          '16': `Cannot unprotect snapshot because it contains child images.`
         };
       }
     ),

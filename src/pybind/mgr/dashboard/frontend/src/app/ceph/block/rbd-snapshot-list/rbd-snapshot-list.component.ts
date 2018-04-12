@@ -162,6 +162,34 @@ export class RbdSnapshotListComponent implements OnInit, OnChanges {
     });
   }
 
+  toggleProtection() {
+    const snapshotName = this.selection.first().name;
+    const isProtected = this.selection.first().is_protected;
+    const finishedTask = new FinishedTask();
+    finishedTask.name = 'rbd/snap/edit';
+    finishedTask.metadata = {
+      'pool_name': this.poolName,
+      'image_name': this.rbdName,
+      'snapshot_name': snapshotName
+    };
+    this.rbdService.protectSnapshot(this.poolName, this.rbdName, snapshotName, !isProtected)
+      .then((resp) => {
+        const executingTask = new ExecutingTask();
+        executingTask.name = finishedTask.name;
+        executingTask.metadata = finishedTask.metadata;
+        this.executingTasks.push(executingTask);
+        this.ngOnChanges();
+        this.taskManagerService.subscribe(finishedTask.name, finishedTask.metadata,
+          (asyncFinishedTask: FinishedTask) => {
+            this.notificationService.notifyTask(asyncFinishedTask);
+          });
+      }).catch((resp) => {
+        finishedTask.success = false;
+        finishedTask.exception = resp.error;
+        this.notificationService.notifyTask(finishedTask);
+      });
+  }
+
   updateSelection(selection: CdTableSelection) {
     this.selection = selection;
   }

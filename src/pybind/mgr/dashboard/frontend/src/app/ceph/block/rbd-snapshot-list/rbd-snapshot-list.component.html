@@ -27,7 +27,16 @@
         <li role="menuitem"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}"><a class="dropdown-item" (click)="openEditSnapshotModal()"><i class="fa fa-fw fa-pencil"></i>Rename</a></li>
         <li role="menuitem"
-            [ngClass]="{'disabled': !selection.hasSingleSelection}"><a class="dropdown-item" (click)="deleteSnapshotModal()"><i class="fa fa-fw fa-trash-o"></i>Delete</a></li>
+            [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
+          <a class="dropdown-item" (click)="toggleProtection()">
+            <span *ngIf="!selection.first()?.is_protected"><i class="fa fa-fw fa-lock"></i>Protect</span>
+            <span *ngIf="selection.first()?.is_protected"><i class="fa fa-fw fa-unlock"></i>Unprotect</span>
+          </a>
+        </li>
+        <li role="menuitem"
+            [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().is_protected}">
+          <a class="dropdown-item" (click)="deleteSnapshotModal()"><i class="fa fa-fw fa-trash-o"></i>Delete</a>
+        </li>
       </ul>
     </div>
   </div>
