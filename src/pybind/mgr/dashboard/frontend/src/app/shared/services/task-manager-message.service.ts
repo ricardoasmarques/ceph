@@ -52,6 +52,17 @@ export class TaskManagerMessageService {
         };
       }
     ),
+    'rbd/clone': new TaskManagerMessage(
+      (metadata) => `Clone RBD '${metadata.child_pool_name}/${metadata.child_image_name}'`,
+      (metadata) => `RBD '${metadata.child_pool_name}/${metadata.child_image_name}'
+                     has been cloned successfully`,
+      (metadata) => {
+        return {
+          '17': `Name '${metadata.child_pool_name}/${metadata.child_image_name}' is already
+                 in use.`
+        };
+      }
+    ),
     'rbd/snap/create': new TaskManagerMessage(
       (metadata) => `Create snapshot ` +
                     `'${metadata.pool_name}/${metadata.image_name}@${metadata.snapshot_name}'`,
