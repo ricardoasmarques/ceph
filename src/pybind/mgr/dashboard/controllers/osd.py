@@ -3,12 +3,13 @@ from __future__ import absolute_import
 
 from . import ApiController, RESTController
 from .. import mgr, logger
+from ..security import Scope
 from ..services.ceph_service import CephService
 from ..services.exception import handle_send_command_error
 from ..tools import str_to_bool
 
 
-@ApiController('/osd')
+@ApiController('/osd', Scope.OSD)
 class Osd(RESTController):
     def list(self):
         osds = self.get_osd_map()
@@ -63,7 +64,7 @@ class Osd(RESTController):
         CephService.send_command("mon", api_scrub, who=svc_id)
 
 
-@ApiController('/osd/flags')
+@ApiController('/osd/flags', Scope.OSD)
 class OsdFlagsController(RESTController):
     @staticmethod
     def _osd_flags():
