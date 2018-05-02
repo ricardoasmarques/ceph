@@ -9,10 +9,12 @@ import { Copy2ClipboardButtonDirective } from './directives/copy2clipboard-butto
 import { DimlessBinaryDirective } from './directives/dimless-binary.directive';
 import { HideIfEmptyDirective } from './directives/hide-if-empty.directive';
 import { PasswordButtonDirective } from './directives/password-button.directive';
+import { PermissionDirective } from './directives/permission.directive';
 import { PipesModule } from './pipes/pipes.module';
 import { AuthGuardService } from './services/auth-guard.service';
 import { AuthStorageService } from './services/auth-storage.service';
 import { FormatterService } from './services/formatter.service';
+import { PermissionService } from './services/permission.service';
 import { ServicesModule } from './services/services.module';
 
 @NgModule({
@@ -29,7 +31,8 @@ import { ServicesModule } from './services/services.module';
     DimlessBinaryDirective,
     Copy2ClipboardButtonDirective,
     AutofocusDirective,
-    HideIfEmptyDirective
+    HideIfEmptyDirective,
+    PermissionDirective
   ],
   exports: [
     ComponentsModule,
@@ -41,12 +44,14 @@ import { ServicesModule } from './services/services.module';
     DataTableModule,
     ApiModule,
     AutofocusDirective,
-    HideIfEmptyDirective
+    HideIfEmptyDirective,
+    PermissionDirective
   ],
   providers: [
     AuthStorageService,
     AuthGuardService,
-    FormatterService
+    FormatterService,
+    PermissionService
   ]
 })
 export class SharedModule {}

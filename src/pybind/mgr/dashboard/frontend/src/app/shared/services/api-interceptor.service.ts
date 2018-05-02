@@ -46,7 +46,6 @@ export class ApiInterceptorService implements HttpInterceptor {
               } else {
                 finishedTask.metadata = resp.error;
               }
-
               finishedTask.success = false;
               finishedTask.exception = resp.error;
               this.notificationService.notifyTask(finishedTask);
@@ -56,11 +55,13 @@ export class ApiInterceptorService implements HttpInterceptor {
               this.authStorageService.remove();
               this.router.navigate(['/login']);
               break;
+            case 403:
+              this.router.navigate(['/403']);
+              break;
             case 404:
               this.router.navigate(['/404']);
               break;
           }
-
           let timeoutId;
           if (showNotification) {
             timeoutId = this.notificationService.show(

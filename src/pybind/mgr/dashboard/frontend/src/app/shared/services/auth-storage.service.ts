@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { PermissionType } from '../models/permission';
 import { ServicesModule } from './services.module';
 
 @Injectable({
@@ -10,8 +11,9 @@ export class AuthStorageService {
   constructor() {
   }
 
-  set(username: string) {
+  set(username: string, permissions: Array<any>) {
     localStorage.setItem('dashboard_username', username);
+    localStorage.setItem('dashboard_permissions', JSON.stringify(permissions));
   }
 
   remove() {
@@ -22,4 +24,11 @@ export class AuthStorageService {
     return localStorage.getItem('dashboard_username') !== null;
   }
 
+  protected getPermissions(): any {
+    return JSON.parse(localStorage.getItem('dashboard_permissions') || '{}');
+  }
+
+  getPermissionsByScope(scope: string): Array<PermissionType> {
+    return this.getPermissions()[scope] || [];
+  }
 }
