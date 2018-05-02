@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Route, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { IscsiComponent } from './ceph/block/iscsi/iscsi.component';
 import { MirroringComponent } from './ceph/block/mirroring/mirroring.component';
@@ -22,17 +22,10 @@ import { RgwUserListComponent } from './ceph/rgw/rgw-user-list/rgw-user-list.com
 import { LoginComponent } from './core/auth/login/login.component';
 import { ForbiddenComponent } from './core/forbidden/forbidden.component';
 import { NotFoundComponent } from './core/not-found/not-found.component';
-import { Permission } from './shared/models/permission';
 import { AuthGuardService } from './shared/services/auth-guard.service';
 import { ModuleStatusGuardService } from './shared/services/module-status-guard.service';
 
-declare type PermissionRoutes = PermissionRoute[];
-
-interface PermissionRoute extends Route {
-  permission?: Permission;
-}
-
-const routes: PermissionRoutes = [
+const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuardService] },
   { path: 'hosts', component: HostsComponent, canActivate: [AuthGuardService] },

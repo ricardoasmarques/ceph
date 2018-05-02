@@ -3,6 +3,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { HostService } from '../../../shared/api/host.service';
 import { CdTableColumn } from '../../../shared/models/cd-table-column';
 import { CephShortVersionPipe } from '../../../shared/pipes/ceph-short-version.pipe';
+import { PermissionService } from '../../../shared/services/permission.service';
 
 @Component({
   selector: 'cd-hosts',
@@ -18,7 +19,8 @@ export class HostsComponent implements OnInit {
   @ViewChild('servicesTpl') public servicesTpl: TemplateRef<any>;
 
   constructor(private hostService: HostService,
-              private cephShortVersionPipe: CephShortVersionPipe) { }
+              private cephShortVersionPipe: CephShortVersionPipe,
+              private permissionService: PermissionService) { }
 
   ngOnInit() {
     this.columns = [
@@ -46,11 +48,21 @@ export class HostsComponent implements OnInit {
     if (this.isLoadingHosts) {
       return;
     }
+    const typeToScope = {
+      'mds': 'cephfs',
+      'mon': 'monitor',
+      'osd': 'osd',
+      'rgw': 'rgw',
+      'rbd-mirror': 'rbd-mirroring',
+      'mgr': 'manager',
+    };
     this.isLoadingHosts = true;
     this.hostService.list().then((resp) => {
       resp.map((host) => {
         host.services.map((service) => {
           service.cdLink = `/perf_counters/${service.type}/${service.id}`;
+          const scope = typeToScope[service.type];
+          service.canRead = this.permissionService.hasPermission({scope: scope, showIf: 'read'});
           return service;
         });
         return host;

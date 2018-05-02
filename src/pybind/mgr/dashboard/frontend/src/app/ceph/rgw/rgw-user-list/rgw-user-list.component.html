@@ -17,38 +17,149 @@
           identifier="user_id"
           (fetchData)="getUserList()">
   <div class="table-actions">
-    <div class="btn-group" dropdown>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="!selection.hasSelection"
-              routerLink="/rgw/user/add">
-        <i class="fa fa-fw fa-plus"></i>
-        <ng-container i18n>Add</ng-container>
-      </button>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="selection.hasSingleSelection"
-              routerLink="/rgw/user/edit/{{ selection.first()?.user_id }}">
-        <i class="fa fa-fw fa-pencil"></i>
-        <ng-container i18n>Edit</ng-container>
-      </button>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="selection.hasMultiSelection"
-              (click)="deleteAction()">
-        <i class="fa fa-fw fa-trash-o"></i>
-        <ng-container i18n>Delete</ng-container>
-      </button>
-      <button type="button"
-              class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
-              dropdownToggle>
-        <span class="caret"></span>
-        <span class="sr-only"></span>
-      </button>
+    <div dropdown>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: ['create', 'update', 'delete']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="!selection.hasSelection"
+                routerLink="/rgw/user/add">
+          <i class="fa fa-fw fa-plus"></i>
+          <ng-container i18n>Add</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasSingleSelection"
+                routerLink="/rgw/user/edit/{{ selection.first()?.user_id }}">
+          <i class="fa fa-fw fa-pencil"></i>
+          <ng-container i18n>Edit</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasMultiSelection"
+                (click)="deleteAction()">
+          <i class="fa fa-fw fa-trash-o"></i>
+          <ng-container i18n>Delete</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+                dropdownToggle>
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: ['create', 'update'], showIfNot: 'delete'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="!selection.hasSingleSelection"
+                routerLink="/rgw/user/add">
+          <i class="fa fa-fw fa-plus"></i>
+          <ng-container i18n>Add</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasSingleSelection"
+                routerLink="/rgw/user/edit/{{ selection.first()?.user_id }}">
+          <i class="fa fa-fw fa-pencil"></i>
+          <ng-container i18n>Edit</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+                dropdownToggle>
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: ['create', 'delete'], showIfNot: 'update'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="!selection.hasSelection"
+                routerLink="/rgw/user/add">
+          <i class="fa fa-fw fa-plus"></i>
+          <ng-container i18n>Add</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasSelection"
+                (click)="deleteAction()">
+          <i class="fa fa-fw fa-trash-o"></i>
+          <ng-container i18n>Delete</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+                dropdownToggle>
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: ['update', 'delete'], showIfNot: 'create'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="!selection.hasMultiSelection"
+                [ngClass]="{'disabled': !selection.hasSingleSelection}"
+                routerLink="/rgw/user/edit/{{ selection.first()?.user_id }}">
+          <i class="fa fa-fw fa-pencil"></i>
+          <ng-container i18n>Edit</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasMultiSelection"
+                (click)="deleteAction()">
+          <i class="fa fa-fw fa-trash-o"></i>
+          <ng-container i18n>Delete</ng-container>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+                dropdownToggle>
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: 'create', showIfNot: ['update', 'delete']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                routerLink="/rgw/user/add">
+          <i class="fa fa-fw fa-plus"></i>
+          <ng-container i18n>Add</ng-container>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: 'update', showIfNot: ['create', 'delete']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                [ngClass]="{'disabled': !selection.hasSingleSelection}"
+                routerLink="/rgw/user/edit/{{ selection.first()?.user_id }}">
+          <i class="fa fa-fw fa-pencil"></i>
+          <ng-container i18n>Edit</ng-container>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rgw', showIf: 'delete', showIfNot: ['create', 'update']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                [ngClass]="{'disabled': !selection.hasSelection}"
+                (click)="deleteAction()">
+          <i class="fa fa-fw fa-trash-o"></i>
+          <ng-container i18n>Delete</ng-container>
+        </button>
+      </div>
+
       <ul class="dropdown-menu"
           *dropdownMenu
           role="menu">
-        <li role="menuitem">
+        <li role="menuitem"
+            *cdPermission="{scope: 'rgw', showIf: 'create'}">
           <a class="dropdown-item"
              routerLink="/rgw/user/add"
              i18n>
@@ -57,6 +168,7 @@
           </a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rgw', showIf: 'update'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection}">
           <a class="dropdown-item"
              routerLink="/rgw/user/edit/{{ selection.first()?.user_id }}"
@@ -66,6 +178,7 @@
           </a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rgw', showIf: 'delete'}"
             [ngClass]="{'disabled': !selection.hasSelection}">
           <a class="dropdown-item"
              (click)="deleteAction()"

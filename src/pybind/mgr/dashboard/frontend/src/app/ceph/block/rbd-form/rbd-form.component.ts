@@ -11,6 +11,7 @@ import { FinishedTask } from '../../../shared/models/finished-task';
 import { DimlessBinaryPipe } from '../../../shared/pipes/dimless-binary.pipe';
 import { FormatterService } from '../../../shared/services/formatter.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { PermissionService } from '../../../shared/services/permission.service';
 import { TaskManagerMessageService } from '../../../shared/services/task-manager-message.service';
 import { TaskManagerService } from '../../../shared/services/task-manager.service';
 import { RbdFormCloneRequestModel } from './rbd-form-clone-request.model';
@@ -36,6 +37,7 @@ export class RbdFormComponent implements OnInit {
   journalingFormControl: FormControl;
   fastDiffFormControl: FormControl;
 
+  canReadPools: boolean;
   pools: Array<string> = null;
   allPools: Array<string> = null;
   dataPools: Array<string> = null;
@@ -80,7 +82,9 @@ export class RbdFormComponent implements OnInit {
               private dimlessBinaryPipe: DimlessBinaryPipe,
               private taskManagerService: TaskManagerService,
               private taskManagerMessageService: TaskManagerMessageService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private permissionService: PermissionService) {
+    this.canReadPools = this.permissionService.hasPermission({scope: 'pool', showIf: 'read'});
     this.features = {
       'deep-flatten': {
         desc: 'Deep flatten',
@@ -219,7 +223,7 @@ export class RbdFormComponent implements OnInit {
           this.setFeatures(defaultFeatures);
         });
     }
-    if (this.mode !== this.rbdFormMode.editing) {
+    if (this.mode !== this.rbdFormMode.editing && this.canReadPools) {
       this.poolService.list(['pool_name', 'type', 'flags_names', 'application_metadata']).then(
         resp => {
           const pools = [];

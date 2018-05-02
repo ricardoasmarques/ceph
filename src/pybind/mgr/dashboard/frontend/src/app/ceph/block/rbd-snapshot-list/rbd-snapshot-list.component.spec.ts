@@ -8,11 +8,11 @@ import { throwError as observableThrowError } from 'rxjs';
 
 import { ApiModule } from '../../../shared/api/api.module';
 import { RbdService } from '../../../shared/api/rbd.service';
-import { ComponentsModule } from '../../../shared/components/components.module';
 import { DataTableModule } from '../../../shared/datatable/datatable.module';
 import { AuthStorageService } from '../../../shared/services/auth-storage.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ServicesModule } from '../../../shared/services/services.module';
+import { SharedModule } from '../../../shared/shared.module';
 import { configureTestBed } from '../../../shared/unit-test-helper';
 import { RbdSnapshotListComponent } from './rbd-snapshot-list.component';
 
@@ -24,7 +24,7 @@ describe('RbdSnapshotListComponent', () => {
     declarations: [RbdSnapshotListComponent],
     imports: [
       DataTableModule,
-      ComponentsModule,
+      SharedModule,
       ModalModule.forRoot(),
       ToastModule.forRoot(),
       ServicesModule,

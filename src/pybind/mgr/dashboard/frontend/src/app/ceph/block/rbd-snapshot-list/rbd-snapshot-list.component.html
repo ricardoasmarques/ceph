@@ -4,29 +4,78 @@
           (updateSelection)="updateSelection($event)"
           [columns]="columns">
   <div class="table-actions">
-    <div class="btn-group" dropdown>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="!selection.hasSingleSelection"
-              (click)="openCreateSnapshotModal()">
-        <i class="fa fa-fw fa-plus"></i><span i18n>Create</span>
-      </button>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="selection.hasSingleSelection"
-              [ngClass]="{'disabled': selection.first().executing}"
-              (click)="openEditSnapshotModal()">
-        <i class="fa fa-fw fa-pencil"></i><span i18n>Rename</span>
-      </button>
-      <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
-        <span class="caret"></span>
-        <span class="sr-only"></span>
-      </button>
+    <div dropdown>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: ['create', 'update']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="!selection.hasSingleSelection"
+                (click)="openCreateSnapshotModal()">
+          <i class="fa fa-fw fa-plus"></i><span i18n>Create</span>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasSingleSelection"
+                [ngClass]="{'disabled': selection.first().executing}"
+                (click)="openEditSnapshotModal()">
+          <i class="fa fa-fw fa-pencil"></i><span i18n>Rename</span>
+        </button>
+        <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: 'create', showIfNot: 'update'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                (click)="openCreateSnapshotModal()">
+          <i class="fa fa-fw fa-plus"></i><span i18n>Create</span>
+        </button>
+        <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: 'update', showIfNot: 'create'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}"
+                (click)="openEditSnapshotModal()">
+          <i class="fa fa-fw fa-pencil"></i><span i18n>Rename</span>
+        </button>
+        <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: 'delete', showIfNot: ['create', 'update']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing || selection.first().is_protected}"
+                (click)="deleteSnapshotModal()">
+          <i class="fa fa-fw fa-trash-o"></i><span i18n>Delete</span>
+        </button>
+      </div>
+
       <ul *dropdownMenu class="dropdown-menu" role="menu">
-        <li role="menuitem"><a class="dropdown-item" (click)="openCreateSnapshotModal()"><i class="fa fa-fw fa-plus"></i><span i18n>Create</span></a></li>
         <li role="menuitem"
-            [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}"><a class="dropdown-item" (click)="openEditSnapshotModal()"><i class="fa fa-fw fa-pencil"></i><span i18n>Rename</span></a></li>
+            *cdPermission="{scope: 'rbd-image', showIf: 'create'}">
+          <a class="dropdown-item" (click)="openCreateSnapshotModal()"><i class="fa fa-fw fa-plus"></i><span i18n>Create</span></a>
+        </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'update'}"
+            [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
+          <a class="dropdown-item" (click)="openEditSnapshotModal()"><i class="fa fa-fw fa-pencil"></i><span i18n>Rename</span></a>
+        </li>
+        <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'update'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" (click)="toggleProtection()">
             <span *ngIf="!selection.first()?.is_protected"><i class="fa fa-fw fa-lock"></i><span i18n>Protect</span></span>
@@ -34,22 +83,26 @@
           </a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: ['create', 'update']}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" routerLink="/rbd/clone/{{ poolName }}/{{ rbdName }}/{{ selection.first()?.name }}">
             <i class="fa fa-fw fa-clone"></i><span i18n>Clone</span>
           </a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'create'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" routerLink="/rbd/copy/{{ poolName }}/{{ rbdName }}/{{ selection.first()?.name }}">
             <i class="fa fa-fw fa-copy"></i><span i18n>Copy</span>
           </a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'update'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" (click)="rollbackModal()"><i class="fa fa-fw fa-undo"></i><span i18n>Rollback</span></a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'delete'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing || selection.first().is_protected}">
           <a class="dropdown-item" (click)="deleteSnapshotModal()"><i class="fa fa-fw fa-trash-o"></i><span i18n>Delete</span></a>
         </li>

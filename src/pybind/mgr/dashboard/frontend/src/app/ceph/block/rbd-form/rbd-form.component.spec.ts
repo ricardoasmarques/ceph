@@ -12,6 +12,7 @@ import { FormatterService } from '../../../shared/services/formatter.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { TaskManagerMessageService } from '../../../shared/services/task-manager-message.service';
 import { TaskManagerService } from '../../../shared/services/task-manager.service';
+import { SharedModule } from '../../../shared/shared.module';
 import { configureTestBed } from '../../../shared/unit-test-helper';
 import { RbdFormComponent } from './rbd-form.component';
 
@@ -32,7 +33,7 @@ describe('RbdFormComponent', () => {
   };
 
   configureTestBed({
-    imports: [ReactiveFormsModule, RouterTestingModule],
+    imports: [ReactiveFormsModule, RouterTestingModule, SharedModule],
     declarations: [RbdFormComponent],
     schemas: [NO_ERRORS_SCHEMA],
     providers: [

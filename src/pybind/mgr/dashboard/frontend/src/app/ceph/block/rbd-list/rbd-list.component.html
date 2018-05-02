@@ -20,41 +20,88 @@
           selectionType="single"
           (updateSelection)="updateSelection($event)">
   <div class="table-actions">
-    <div class="btn-group" dropdown>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="!selection.hasSingleSelection"
-              routerLink="/rbd/add">
-        <i class="fa fa-fw fa-plus"></i><span i18n>Add</span>
-      </button>
-      <button type="button"
-              class="btn btn-sm btn-primary"
-              *ngIf="selection.hasSingleSelection"
-              [ngClass]="{'disabled': selection.first().executing}"
-              routerLink="/rbd/edit/{{ selection.first()?.pool_name }}/{{ selection.first()?.name }}">
-        <i class="fa fa-fw fa-pencil"></i><span i18n>Edit</span>
-      </button>
-      <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
-        <span class="caret"></span>
-        <span class="sr-only"></span>
-      </button>
+    <div dropdown>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: ['create', 'update']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="!selection.hasSingleSelection"
+                routerLink="/rbd/add">
+          <i class="fa fa-fw fa-plus"></i><span i18n>Add</span>
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                *ngIf="selection.hasSingleSelection"
+                [ngClass]="{'disabled': selection.first().executing}"
+                routerLink="/rbd/edit/{{ selection.first()?.pool_name }}/{{ selection.first()?.name }}">
+          <i class="fa fa-fw fa-pencil"></i><span i18n>Edit</span>
+        </button>
+        <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: 'create', showIfNot: 'update'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                routerLink="/rbd/add">
+          <i class="fa fa-fw fa-plus"></i><span i18n>Add</span>
+        </button>
+        <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: 'update', showIfNot: 'create'}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}"
+                routerLink="/rbd/edit/{{ selection.first()?.pool_name }}/{{ selection.first()?.name }}">
+          <i class="fa fa-fw fa-pencil"></i><span i18n>Edit</span>
+        </button>
+        <button type="button" dropdownToggle class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+      </div>
+
+      <div class="btn-group"
+           *cdPermission="{scope: 'rbd-image', showIf: 'delete', showIfNot: ['create', 'update']}">
+        <button type="button"
+                class="btn btn-sm btn-primary"
+                [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}"
+                (click)="deleteRbdModal()">
+          <i class="fa fa-fw fa-trash-o"></i><span i18n>Delete</span>
+        </button>
+      </div>
+
       <ul *dropdownMenu class="dropdown-menu" role="menu">
-        <li role="menuitem">
+        <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'create'}">
           <a class="dropdown-item" routerLink="/rbd/add"><i class="fa fa-fw fa-plus"></i><span i18n>Add</span></a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'update'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" routerLink="/rbd/edit/{{ selection.first()?.pool_name }}/{{ selection.first()?.name }}"><i class="fa fa-fw fa-pencil"></i><span i18n>Edit</span></a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'create'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" routerLink="/rbd/copy/{{ selection.first()?.pool_name }}/{{ selection.first()?.name }}"><i class="fa fa-fw fa-copy"></i><span i18n>Copy</span></a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'update'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing || !selection.first().parent}">
           <a class="dropdown-item" (click)="flattenRbdModal()"><i class="fa fa-fw fa-chain-broken"></i><span i18n>Flatten</span></a>
         </li>
         <li role="menuitem"
+            *cdPermission="{scope: 'rbd-image', showIf: 'delete'}"
             [ngClass]="{'disabled': !selection.hasSingleSelection || selection.first().executing}">
           <a class="dropdown-item" (click)="deleteRbdModal()"><i class="fa fa-fw fa-trash-o"></i><span i18n>Delete</span></a>
         </li>
