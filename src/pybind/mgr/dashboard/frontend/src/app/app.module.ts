@@ -12,6 +12,7 @@ import { CephModule } from './ceph/ceph.module';
 import { CoreModule } from './core/core.module';
 import { ApiInterceptorService } from './shared/services/api-interceptor.service';
 import { SharedModule } from './shared/shared.module';
+import { KeycloakService } from './keycloak-service/keycloak.service';
 
 export class CustomOption extends ToastOptions {
   animate = 'flyRight';
@@ -48,6 +49,7 @@ export class CustomOption extends ToastOptions {
       provide: ToastOptions,
       useClass: CustomOption
     },
+    KeycloakService
   ],
   bootstrap: [AppComponent]
 })

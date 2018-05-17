@@ -22,6 +22,7 @@
     "@angular/platform-browser": "^5.0.0",
     "@angular/platform-browser-dynamic": "^5.0.0",
     "@angular/router": "^5.0.0",
+    "@ssilvert/keycloak-schematic": "^0.1.3",
     "@swimlane/ngx-datatable": "^11.1.7",
     "@types/lodash": "^4.14.95",
     "awesome-bootstrap-checkbox": "0.3.7",
