@@ -76,7 +76,7 @@ class DashboardTestCase(MgrTestCase):
     @classmethod
     def logout(cls):
         if cls._loggedin:
-            cls._delete('/api/auth')
+            cls._post('/api/auth/logout')
             cls._loggedin = False
 
     @classmethod

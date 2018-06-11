@@ -89,9 +89,11 @@ class AuthTest(DashboardTestCase):
 
     def test_logout(self):
         self._post("/api/auth", {'username': 'admin', 'password': 'admin'})
-        self._delete("/api/auth")
-        self.assertStatus(204)
-        self.assertBody('')
+        self._post("/api/auth/logout")
+        self.assertStatus(200)
+        self.assertJsonBody({
+            "redirect_url": "#/login"
+        })
         self._get("/api/host")
         self.assertStatus(401)
 

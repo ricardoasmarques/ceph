@@ -9,6 +9,8 @@ from . import ApiController, RESTController
 from .. import logger
 from ..exceptions import DashboardException
 from ..services.auth import AuthManager
+from ..services.access_control import ACCESS_CTRL_DB
+from ..services.sso import SSO_DB
 from ..tools import Session
 
 
@@ -44,7 +46,30 @@ class Auth(RESTController):
                                  code='invalid_credentials',
                                  component='auth')
 
-    def bulk_delete(self):
+    @RESTController.Collection('POST')
+    def logout(self):
         logger.debug('Logout successful')
         cherrypy.session[Session.USERNAME] = None
         cherrypy.session[Session.TS] = None
+        redirect_url = '#/login'
+        if SSO_DB.protocol == 'saml2':
+            redirect_url = 'auth/saml2/slo'
+        return {
+            'redirect_url': redirect_url
+        }
+
+    def _get_login_url(self):
+        if SSO_DB.protocol == 'saml2':
+            return 'auth/saml2/login'
+        return '#/login'
+
+    def list(self):
+        if not cherrypy.session.get(Session.USERNAME):
+            return {
+                'login_url': self._get_login_url()
+            }
+        user = ACCESS_CTRL_DB.get_user(cherrypy.session.get(Session.USERNAME))
+        return {
+            'username': user.username,
+            'permissions': user.permissions_dict(),
+        }

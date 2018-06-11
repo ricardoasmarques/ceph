@@ -15,6 +15,11 @@ import socket
 from six.moves import urllib
 import cherrypy
 
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
+
 from . import logger
 from .exceptions import ViewCacheNoDataException
 
@@ -698,6 +703,14 @@ def build_url(host, scheme=None, port=None):
         query='',
         fragment='')
     return pr.geturl()
+
+
+def prepare_url_prefix(url_prefix):
+    """
+    return '' if no prefix, or '/prefix' without slash in the end.
+    """
+    url_prefix = urljoin('/', url_prefix)
+    return url_prefix.rstrip('/')
 
 
 def dict_contains_path(dct, keys):

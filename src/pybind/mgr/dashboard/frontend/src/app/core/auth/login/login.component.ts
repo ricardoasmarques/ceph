@@ -14,6 +14,7 @@ import { AuthStorageService } from '../../../shared/services/auth-storage.servic
 })
 export class LoginComponent implements OnInit {
   model = new Credentials();
+  isLoginActive = false;
 
   constructor(
     private authService: AuthService,
@@ -33,6 +34,18 @@ export class LoginComponent implements OnInit {
       for (let i = 1; i <= modalsCount; i++) {
         this.bsModalService.hide(i);
       }
+      this.authService.current().then((login) => {
+        if (login.login_url) {
+          if (login.login_url === '#/login') {
+            this.isLoginActive = true;
+          } else {
+            window.location.replace(login.login_url);
+          }
+        } else {
+          this.authStorageService.set(login.username, login.permissions);
+          this.router.navigate(['']);
+        }
+      });
     }
   }
 
