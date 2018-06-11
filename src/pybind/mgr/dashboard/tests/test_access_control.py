@@ -12,7 +12,7 @@ from ..services.access_control import handle_access_control_command, \
                                       load_access_control_db, \
                                       password_hash, AccessControlDB, \
                                       SYSTEM_ROLES
-
+from ..services.sso import SSO_DB
 
 class CmdException(Exception):
     def __init__(self, retcode, message):

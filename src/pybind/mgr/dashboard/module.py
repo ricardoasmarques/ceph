@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import errno
 from distutils.version import StrictVersion
 from distutils.util import strtobool
+from .services.sso import load_sso_db
 import os
 import socket
 import tempfile
@@ -16,11 +17,6 @@ from uuid import uuid4
 from OpenSSL import crypto
 
 from mgr_module import MgrModule, MgrStandbyModule
-
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 try:
     import cherrypy
@@ -60,10 +56,12 @@ if 'COVERAGE_ENABLED' in os.environ:
 from . import logger, mgr
 from .controllers import generate_routes, json_error_page
 from .tools import SessionExpireAtBrowserCloseTool, NotificationQueue, \
-                   RequestLoggingTool, TaskManager
+                   RequestLoggingTool, TaskManager, prepare_url_prefix
 from .services.auth import AuthManager, AuthManagerTool
 from .services.access_control import ACCESS_CONTROL_COMMANDS, \
                                      handle_access_control_command
+from .services.sso import SSO_COMMANDS, \
+                          handle_sso_command
 from .services.exception import dashboard_exception_handler
 from .settings import options_command_list, options_schema_list, \
                       handle_option_command
@@ -77,14 +75,6 @@ def os_exit_noop(*args):
 
 # pylint: disable=W0212
 os._exit = os_exit_noop
-
-
-def prepare_url_prefix(url_prefix):
-    """
-    return '' if no prefix, or '/prefix' without slash in the end.
-    """
-    url_prefix = urljoin('/', url_prefix)
-    return url_prefix.rstrip('/')
 
 
 class ServerConfigException(Exception):
@@ -233,6 +223,7 @@ class Module(MgrModule, CherryPyConfig):
     ]
     COMMANDS.extend(options_command_list())
     COMMANDS.extend(ACCESS_CONTROL_COMMANDS)
+    COMMANDS.extend(SSO_COMMANDS)
 
     OPTIONS = [
         {'name': 'server_addr'},
@@ -276,6 +267,7 @@ class Module(MgrModule, CherryPyConfig):
             _cov.start()
 
         AuthManager.initialize()
+        load_sso_db()
 
         uri = self.await_configuration()
         if uri is None:
@@ -326,6 +318,9 @@ class Module(MgrModule, CherryPyConfig):
         if res[0] != -errno.ENOSYS:
             return res
         res = handle_access_control_command(cmd)
+        if res[0] != -errno.ENOSYS:
+            return res
+        res = handle_sso_command(cmd)
         if res[0] != -errno.ENOSYS:
             return res
         elif cmd['prefix'] == 'dashboard set-session-expire':

@@ -127,6 +127,10 @@ class RoleTest(DashboardTestCase):
         self._delete('/api/role/role1')
         self.assertStatus(204)
 
+    # TODO
+    # def test_delete_sso_default_role(self):
+    #    ...
+
     def test_update_role_does_not_exist(self):
         self._put('/api/role/role2', {})
         self.assertStatus(404)

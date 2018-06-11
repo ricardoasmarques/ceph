@@ -89,7 +89,7 @@ class UiApiController(Controller):
 
 
 def Endpoint(method=None, path=None, path_params=None, query_params=None,
-             json_response=True, proxy=False):
+             json_response=True, proxy=False, xml=False):
 
     if method is None:
         method = 'GET'
@@ -139,7 +139,8 @@ def Endpoint(method=None, path=None, path_params=None, query_params=None,
             'path_params': path_params,
             'query_params': query_params,
             'json_response': json_response,
-            'proxy': proxy
+            'proxy': proxy,
+            'xml': xml
         }
         return func
     return _wrapper
@@ -380,7 +381,8 @@ class BaseController(object):
         @property
         def function(self):
             return self.ctrl._request_wrapper(self.func, self.method,
-                                              self.config['json_response'])
+                                              self.config['json_response'],
+                                              self.config['xml'])
 
         @property
         def method(self):
@@ -523,7 +525,7 @@ class BaseController(object):
         return result
 
     @staticmethod
-    def _request_wrapper(func, method, json_response):
+    def _request_wrapper(func, method, json_response, xml):
         @wraps(func)
         def inner(*args, **kwargs):
             for key, value in kwargs.items():
@@ -555,11 +557,43 @@ class BaseController(object):
 
             if isinstance(ret, bytes):
                 ret = ret.decode('utf-8')
+            if xml:
+                cherrypy.response.headers['Content-Type'] = 'application/xml'
+                return ret.encode('utf8')
             if json_response:
                 cherrypy.response.headers['Content-Type'] = 'application/json'
                 ret = json.dumps(ret).encode('utf8')
             return ret
         return inner
+
+    @property
+    def _request(self):
+        return self.Request(cherrypy.request)
+
+    class Request(object):
+        def __init__(self, cherrypy_req):
+            self._creq = cherrypy_req
+
+        @property
+        def scheme(self):
+            return self._creq.scheme
+
+        @property
+        def host(self):
+            base = self._creq.base
+            base = base[len(self.scheme)+3:]
+            return base[:base.find(":")] if ":" in base else base
+
+        @property
+        def port(self):
+            base = self._creq.base
+            base = base[len(self.scheme)+3:]
+            default_port = 443 if self.scheme == 'https' else 80
+            return int(base[base.find(":")+1:]) if ":" in base else default_port
+
+        @property
+        def path_info(self):
+            return self._creq.path_info
 
 
 class RESTController(BaseController):
