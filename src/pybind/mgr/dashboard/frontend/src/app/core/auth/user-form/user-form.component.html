@@ -1,0 +1,153 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">Administration</li>
+    <li class="breadcrumb-item">
+      <a routerLink="/users">Users</a></li>
+    <li class="breadcrumb-item active"
+        i18n>{mode, select, editing {Edit} other {Add}}</li>
+  </ol>
+</nav>
+
+<div class="col-sm-12 col-lg-6">
+  <form name="userForm"
+        class="form-horizontal"
+        #formDir="ngForm"
+        [formGroup]="userForm"
+        novalidate>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <span i18n>{mode, select, editing {Edit} other {Add}}</span> User
+        </h3>
+      </div>
+      <div class="panel-body">
+
+        <!-- Username -->
+        <div class="form-group"
+             [ngClass]="{'has-error': (formDir.submitted || userForm.controls.username.dirty) && userForm.controls.username.invalid}">
+          <label i18n
+                 class="control-label col-sm-3"
+                 for="name">Username
+            <span class="required"
+                  *ngIf="mode !== userFormMode.editing"></span>
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control"
+                   type="text"
+                   placeholder="Username..."
+                   id="username"
+                   name="username"
+                   formControlName="username"
+                   autofocus>
+            <span i18n
+                  class="help-block"
+                  *ngIf="(formDir.submitted || userForm.controls.username.dirty) && userForm.controls.username.hasError('required')">
+              This field is required.
+            </span>
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div class="form-group"
+             [ngClass]="{'has-error': (formDir.submitted || userForm.controls.name.dirty) && userForm.controls.name.invalid}">
+          <label i18n
+                 class="control-label col-sm-3"
+                 for="name">Full name
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control"
+                   type="text"
+                   placeholder="Name..."
+                   id="name"
+                   name="name"
+                   formControlName="name"
+                   autofocus>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group"
+             [ngClass]="{'has-error': (formDir.submitted || userForm.controls.email.dirty) && userForm.controls.email.invalid}">
+          <label i18n
+                 class="control-label col-sm-3"
+                 for="email">Email
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control"
+                   type="email"
+                   placeholder="Email..."
+                   id="email"
+                   name="email"
+                   formControlName="email"
+                   autofocus>
+
+            <span i18n
+                  class="help-block"
+                  *ngIf="(formDir.submitted || userForm.controls.email.dirty) && userForm.controls.email.hasError('email')">
+              Invalid email.
+            </span>
+          </div>
+        </div>
+
+        <!-- Roles -->
+        <ng-template #addRolePopTemplate>
+            <div *ngFor="let role of allRoles"
+                 class="select-menu-item"
+                 (click)="selectRole(role)">
+              <div class="select-menu-item-icon">
+                <i class="fa fa-check" aria-hidden="true"
+                   *ngIf="role.selected"></i>
+                &nbsp;
+              </div>
+              <div class="select-menu-item-content">
+                {{ role.name }}
+                <br>
+                <small class="text-muted">
+                  {{ role.description }}
+                </small>
+              </div>
+            </div>
+          </ng-template>
+        <label class="col-sm-3 control-label"
+               i18n>Roles
+        </label>
+        <div class="col-sm-9">
+          <span class="form-control no-border">
+            <a  class="margin-right-sm"
+                style="margin-left: -20px"
+               [popover]="addRolePopTemplate"
+               placement="bottom"
+               container="body"
+               outsideClick="true">
+              <i class="fa fa-fw fa-pencil"></i>
+            </a>
+            <span class="text-muted"
+                  *ngIf="userForm.controls.roles.value.length === 0"
+                  i18n>
+              There are no roles.
+            </span>
+            <span *ngFor="let role of userForm.controls.roles.value; let i=index;">
+              <span class="badge badge-pill badge-primary margin-right-sm">{{ role }}</span>
+            </span>
+          </span>
+        </div>
+
+      </div>
+      <div class="panel-footer">
+        <div class="button-group text-right">
+          <cd-submit-button [form]="formDir"
+                            type="button"
+                            (submitAction)="submit()">
+            <span i18n>{mode, select, editing {Update} other {Create}}</span> User
+          </cd-submit-button>
+          <button i18n
+                  type="button"
+                  class="btn btn-sm btn-default"
+                  routerLink="/users">
+            Back
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
