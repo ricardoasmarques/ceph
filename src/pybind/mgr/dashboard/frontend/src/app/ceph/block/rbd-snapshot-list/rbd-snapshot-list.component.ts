@@ -10,8 +10,10 @@ import { CdTableColumn } from '../../../shared/models/cd-table-column';
 import { CdTableSelection } from '../../../shared/models/cd-table-selection';
 import { ExecutingTask } from '../../../shared/models/executing-task';
 import { FinishedTask } from '../../../shared/models/finished-task';
+import { Permission } from '../../../shared/models/Permissions';
 import { CdDatePipe } from '../../../shared/pipes/cd-date.pipe';
 import { DimlessBinaryPipe } from '../../../shared/pipes/dimless-binary.pipe';
+import { AuthStorageService } from '../../../shared/services/auth-storage.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { TaskManagerService } from '../../../shared/services/task-manager.service';
 import { RbdSnapshotFormComponent } from '../rbd-snapshot-form/rbd-snapshot-form.component';
@@ -32,6 +34,8 @@ export class RbdSnapshotListComponent implements OnInit, OnChanges {
   @ViewChild('nameTpl') nameTpl: TemplateRef<any>;
   @ViewChild('protectTpl') protectTpl: TemplateRef<any>;
 
+  permission: Permission;
+
   data: RbdSnapshotModel[];
 
   columns: CdTableColumn[];
@@ -41,13 +45,16 @@ export class RbdSnapshotListComponent implements OnInit, OnChanges {
   selection = new CdTableSelection();
 
   constructor(
+    private authStorageService: AuthStorageService,
     private modalService: BsModalService,
     private dimlessBinaryPipe: DimlessBinaryPipe,
     private cdDatePipe: CdDatePipe,
     private rbdService: RbdService,
     private taskManagerService: TaskManagerService,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    this.permission = this.authStorageService.getPermissions().rbdImage;
+  }
 
   ngOnInit() {
     this.columns = [

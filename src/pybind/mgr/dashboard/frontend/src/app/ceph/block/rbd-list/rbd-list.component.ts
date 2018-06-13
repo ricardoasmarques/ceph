@@ -13,8 +13,10 @@ import { CdTableColumn } from '../../../shared/models/cd-table-column';
 import { CdTableSelection } from '../../../shared/models/cd-table-selection';
 import { ExecutingTask } from '../../../shared/models/executing-task';
 import { FinishedTask } from '../../../shared/models/finished-task';
+import { Permission } from '../../../shared/models/Permissions';
 import { DimlessBinaryPipe } from '../../../shared/pipes/dimless-binary.pipe';
 import { DimlessPipe } from '../../../shared/pipes/dimless.pipe';
+import { AuthStorageService } from '../../../shared/services/auth-storage.service';
 import { SummaryService } from '../../../shared/services/summary.service';
 import { TaskWrapperService } from '../../../shared/services/task-wrapper.service';
 import {
@@ -34,6 +36,7 @@ export class RbdListComponent implements OnInit, OnDestroy {
   @ViewChild('parentTpl') parentTpl: TemplateRef<any>;
   @ViewChild('nameTpl') nameTpl: TemplateRef<any>;
 
+  permission: Permission;
   images: any;
   executingTasks: ExecutingTask[] = [];
   columns: CdTableColumn[];
@@ -45,12 +48,14 @@ export class RbdListComponent implements OnInit, OnDestroy {
 
   modalRef: BsModalRef;
 
-  constructor(private rbdService: RbdService,
+  constructor(private authStorageService: AuthStorageService,
+              private rbdService: RbdService,
               private dimlessBinaryPipe: DimlessBinaryPipe,
               private dimlessPipe: DimlessPipe,
               private summaryService: SummaryService,
               private modalService: BsModalService,
               private taskWrapper: TaskWrapperService) {
+    this.permission = this.authStorageService.getPermissions().rbdImage;
   }
 
   ngOnInit() {
