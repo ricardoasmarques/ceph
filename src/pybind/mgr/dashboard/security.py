@@ -22,6 +22,7 @@ class Scope(object):
     CEPHFS = "cephfs"
     MANAGER = "manager"
     LOG = "log"
+    USER = "user"
 
     @classmethod
     def all_scopes(cls):
