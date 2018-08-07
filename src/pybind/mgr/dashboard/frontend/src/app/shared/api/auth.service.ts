@@ -11,6 +11,15 @@ import { ApiModule } from './api.module';
 export class AuthService {
   constructor(private authStorageService: AuthStorageService, private http: HttpClient) {}
 
+  current() {
+    return this.http
+      .get('api/auth')
+      .toPromise()
+      .then((resp: any) => {
+        return resp;
+      });
+  }
+
   login(credentials: Credentials) {
     return this.http
       .post('api/auth', credentials)

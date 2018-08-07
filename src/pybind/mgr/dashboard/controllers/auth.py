@@ -9,6 +9,7 @@ from . import ApiController, RESTController
 from .. import logger
 from ..exceptions import DashboardException
 from ..services.auth import AuthManager
+from ..services.access_control import ACCESS_CTRL_DB
 from ..tools import Session
 
 
@@ -48,3 +49,15 @@ class Auth(RESTController):
         logger.debug('Logout successful')
         cherrypy.session[Session.USERNAME] = None
         cherrypy.session[Session.TS] = None
+
+    def list(self):
+        saml = True  # TODO
+        if not cherrypy.session.get(Session.USERNAME):
+            return {
+                'login_url': 'auth/saml/login' if saml else '#/login'
+            }
+        user = ACCESS_CTRL_DB.get_user(cherrypy.session.get(Session.USERNAME))
+        return {
+            'username': user.username,
+            'permissions': user.permissions_dict(),
+        }
