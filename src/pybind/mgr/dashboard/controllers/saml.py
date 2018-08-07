@@ -17,13 +17,13 @@ CONFIG = {
     "strict": True,
     "debug": True,
     "sp": {
-        "entityId": "http://ceph-dashboard/sp2",
+        "entityId": "http://my-sp/sp2",
         "assertionConsumerService": {
-            "url": "https://192.168.1.102:41242/auth/saml",
+            "url": "https://192.168.1.68:41301/auth/saml",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
         },
         "singleLogoutService": {
-            "url": "https://192.168.1.102:41242/auth/saml/logout",
+            "url": "https://192.168.1.68:41301/auth/saml/logout",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
         # "attributeConsumingService": {
@@ -45,7 +45,7 @@ CONFIG = {
     },
 
     "idp": {
-        "entityId": "https://ceph-dashboard/idp",
+        "entityId": "https://my-sp/idp",
         "singleSignOnService": {
             "url": "https://localhost:9443/idp/profile/SAML2/Redirect/SSO",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
@@ -57,42 +57,42 @@ CONFIG = {
 
         'x509certMulti': {
             'signing': [
-                'MIIDDzCCAfegAwIBAgIUc8CtaDGjNocJ7VDkj1u8MzIPaQ8wDQYJKoZIhvcNAQEL\
-BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTE4MDYwNDE0NDgxMloXDTM4MDYw\
-NDE0NDgxMlowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF\
-AAOCAQ8AMIIBCgKCAQEA25fdl+XkkIApYJ2lGTXinwbWMYly4zhct8UOAizNkb/D\
-3Bg8gmnwR76sJHIXGJkpvFNePxq3l762puYXTHNsNpGdozLVZPqqNXKP0ewlWNcD\
-eyU7PvmA1KmtvadP26XL2NmlbIF4mf8C5ZMdjsVa0tVOK9YovKTbGdGp50P4JAoY\
-Xt1CndlrQWs2cArqUgzWQxTDZDJsZ04GmkvoVocttTVXDmHI29myCqvHArNvi8SK\
-jf68BBtqf9POx781CLR9g+//S0q/25NBdYBL8xaPAi6Y70uezgSXuYBe/bBkc8wR\
-f1MqLuyXTQnyrpRbzqkTUWsF1PDflDAoJiyfBqGC5QIDAQABo1kwVzAdBgNVHQ4E\
-FgQUHUvSsiYvc+XhjEYUtJslDfj+rMMwNgYDVR0RBC8wLYIJbG9jYWxob3N0hiBo\
+                'MIIDDzCCAfegAwIBAgIUJqp8pdrni6tp4YaeowSp/4clzq4wDQYJKoZIhvcNAQEL\
+BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTE4MDgwMzIxMzQzMFoXDTM4MDgw\
+MzIxMzQzMFowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF\
+AAOCAQ8AMIIBCgKCAQEAgkAWb5+9QDULNj6hXS7Jr04006uqw2QhpjI/XpxVf0Gl\
+z1RvUl5hWLeITPbkbtiAfUAJoVFstj7X9bseqeRPe9R947FTs4vfORCH0YcVI50B\
+IkuGWxpvXZIbeXGkVJ4kyY7KfyUhsr/1a1uml2VExD3joesHeCJ6UyS+NscC3slP\
+7rI0WDfq/MtUurNimnXaG6uvYSVtn8JRMzsF+LkCu5gJAhgpW74botljIdzeSS0l\
+JSBx+wjYCDTTD1Llj4/HADG+TSV5ldwtySdicKRgxncFHRzRx5s7cshDbcQdGECb\
+BACpU9GIi0KFShjD95Iz+j8sh4qnpGpBZvB2xF1gnQIDAQABo1kwVzAdBgNVHQ4E\
+FgQU94X7FlrmsnbqaGe70ZauPLE7+WswNgYDVR0RBC8wLYIJbG9jYWxob3N0hiBo\
 dHRwczovL2xvY2FsaG9zdC9pZHAvc2hpYmJvbGV0aDANBgkqhkiG9w0BAQsFAAOC\
-AQEAXrO6rctr/iYu01KemIi7YcZY6mBpU3IEgIT6w3vHMekJZJJik4GjXbm3nUZJ\
-tXMwToCdg9FmJAn+uXqbhA8EVegRlxeKCgt9YB56xCSFXfULOQyMzocxx89d8isp\
-d9lvlw9EUfguqaXftnfFNx2NDP9i/vTP6LnMrU1+xU0LQD8BfrMOowl4i8imr3zD\
-DO4v/8w1x9ZF5I3WmkiiYsMw3ZElRhg4O3qM0QIpUhI8o/Ki7yr4BUsnsFm/HZiW\
-HZrvjXw7GP15vPQ1K04JXLGviMc7624HUFe8N/2WAEki9Svrlkh0occ5isulZY0y\
-cz+syRHxoKuD/YKnY9uQ2+6wFg=='
+AQEAJV7uL2UkltwK9a0V9qDmorNZf/QWc0mHucuaxr8koxo4pwqu9RekDR6Kd/Le\
+haxeELYx1MkfEztTjKr/7NATFjUX67JP76355B8fJ2qVUoVmwxEjetQIM+tXGtku\
+ItchysbfQN7tuKJ+WVcnCWdwPN8RtjlMvKASI0tfKd2qYAzTnlnt3E29/ek0zwZ4\
+OLqzQMKgY5yDnIbIOn7fe2eIJQpuYlRWY3xhn8Ty0S9v24wRFLNYUxS2kN0eYX8d\
+7kqeP0kTqXmWqEQAQJHArc+nhHifmvAQotqvKrslvQXxttXPTq0Sl/5KZCU1TvK7\
+firLnpTkK/o4g8y08zOyjROR5g=='
             ],
             'encryption': [
-                'MIIDDzCCAfegAwIBAgIUbMHY/+KNiA0NMDyPe5fdrZLvvYkwDQYJKoZIhvcNAQEL\
-BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTE4MDYwNDE0NDgxMloXDTM4MDYw\
-NDE0NDgxMlowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF\
-AAOCAQ8AMIIBCgKCAQEAhUfdphin+OwUB15/0T69snedMn5EGxWr6USwxztro6xP\
-SCkRfXiv0RelMQIUqTGp1vSXHpfCudt2PKlcKY9rJtddfNKHxGZiLmwnpEEZkqAR\
-hz/sWICuoVFm1wtPh2tkC8k5IG7efS+OAOyMPcyejUugxJnrBpIJjfcyZ0Vvh+rI\
-6uUM8nbOK8oHpTiDm4wN08d8iNJhOGpXaO/v8AcMowexEeOBiR927jC/meTVV0BW\
-u08HJEXoqtJt9in3pcZAgGR/lcqX5vFU6X5x6sK0k4ERY5g7dldc3pyE4H9fZAHA\
-kRZa8/3TbcI1l7N6aSwAf8rYaeBL0RFzsuFNbVzU2wIDAQABo1kwVzAdBgNVHQ4E\
-FgQURdzrSyandA9Xz9fesQ2wT3amPKYwNgYDVR0RBC8wLYIJbG9jYWxob3N0hiBo\
-dHRwczovL2xvY2FsaG9zdC9pZHAvc2hpYmJvbGV0aDANBgkqhkiG9w0BAQsFAAOC\
-AQEAeoogrdo8mN5PX8alDjuzkWE3CJoPjPH4VqN4SgiRyxr0d4mV+/2KVre18POl\
-zLG3YMhWx2ISqbRaKqsTWOFQ0/TF9d+3/qDxuQTmwsQZ6If2orYHp9Xx/1WifwnW\
-dkxM9L8zXpCrSnR4KPebMP9lptPzy72SmTutJufEeGKB7n+6oe6x1igyaRXjhdOM\
-AXe6KkbOchjV2ZS/n7wF9wsu+LxKUSc6RmAdq4QMDYEHQ0/AmPFscyvY5oWDh4/6\
-cMWolrXnIOTHCySk0LU4OIHb87PXUyQ07KSoqIbAgPZl/QpA6x0omvoXUEKf56kT\
-KgNqTn7iJUgoXn02+LkWO7fShw=='
+                'MIIDEDCCAfigAwIBAgIVAMEceQQG2w3MPzGt+j+PWCt/fgMcMA0GCSqGSIb3DQEB\
+CwUAMBQxEjAQBgNVBAMMCWxvY2FsaG9zdDAeFw0xODA4MDMyMTM0MzBaFw0zODA4\
+MDMyMTM0MzBaMBQxEjAQBgNVBAMMCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEB\
+BQADggEPADCCAQoCggEBAIDTH6V8IPxFaueO+tvoKfyQnN4KCgk4Zxu0j8ImCTph\
+WGIniBfPFzzF7p53xihju7P2GpDOvmIxskC+0Urr4kcVi4dFNEs5ywj6nns9gkEF\
+ZKgJIFuVL0mEB5of6E7ooVjUrwplO+bRafNbo3HfoEb/rAQHOVBm9mPAV2ryxtH1\
+sTOCFxDcA/kIil0cA6HHUz9rox94yQGBFesiV7fxSc+2WFyrdetBDzgoj++qLEIi\
+3tZRb1n+o3jLGPUfw+9f1AHgp2aEIrSuA73VjWr2WklD/fstn56+dsfCFlRlvhAy\
+998eRK+aAm1PwSivjfHs4CwxfPBWkQiS+/yL/Q+kI48CAwEAAaNZMFcwHQYDVR0O\
+BBYEFKiOs3zAKMXvGZ7cRdBxCBzxBR5DMDYGA1UdEQQvMC2CCWxvY2FsaG9zdIYg\
+aHR0cHM6Ly9sb2NhbGhvc3QvaWRwL3NoaWJib2xldGgwDQYJKoZIhvcNAQELBQAD\
+ggEBADHW/yfxJBeVg1xnbJFwnTRC3ftYvYKKy/rf7J2rZsCx1UrDw8nEHojD7okc\
+505z69XjHgS1dTEnvxjBLbYyYNB+XMw/jYDUAS1B+Ekt9DzsCes9kf0jniIB33J3\
+I8gZLJ4aLHMTpgMklIKHahNY/1azLSOdKl1Od6c3KGVY81ex1ki5jcFwk270zJy5\
+PZw1ohx6l3lffGSk8YHLzVM2YB3gpiJsJJ4OAwyv2kB4uwlDXCMwCugIvzcKHFAl\
+xtM94/hsd3Oh3XwjA/yt8Z/xQFqeqhdkzhL147N3+B1a/Mq1IfXETDHTgNQeM8Ol\
+Fs6pJs34knMjJeNkt/yrLvQkqUo='
             ]
         }
     },
@@ -106,7 +106,7 @@ CONFIG_KEYCLOAK = {
     "strict": True,
     "debug": True,
     "sp": {
-        "entityId": "http://ceph-dashboard/sp2",
+        "entityId": "http://my-sp/sp2",
         "assertionConsumerService": {
             "url": "https://192.168.1.102:41661/auth/saml",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
@@ -160,7 +160,7 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': kwargs
         }
-        saml_settings = OneLogin_Saml2_Settings(CONFIG_KEYCLOAK)
+        saml_settings = OneLogin_Saml2_Settings(CONFIG)
         auth = OneLogin_Saml2_Auth(req, saml_settings)
         auth.process_response()
         errors = auth.get_errors()
@@ -181,7 +181,7 @@ class Saml2(BaseController):
 
     @Endpoint(xml=True)
     def metadata(self):
-        saml_settings = OneLogin_Saml2_Settings(CONFIG_KEYCLOAK)
+        saml_settings = OneLogin_Saml2_Settings(CONFIG)
         return saml_settings.get_sp_metadata()
 
     @Endpoint(json_response=False)
@@ -194,7 +194,7 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': {}
         }
-        saml_settings = OneLogin_Saml2_Settings(CONFIG_KEYCLOAK)
+        saml_settings = OneLogin_Saml2_Settings(CONFIG)
         auth = OneLogin_Saml2_Auth(req, saml_settings)
         raise cherrypy.HTTPRedirect(auth.login())
         # out = ""
