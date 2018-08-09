@@ -11,6 +11,7 @@ import { LogoutComponent } from './logout/logout.component';
 import { RoleDetailsComponent } from './role-details/role-details.component';
 import { RoleFormComponent } from './role-form/role-form.component';
 import { RoleListComponent } from './role-list/role-list.component';
+import { SsoFormComponent } from './sso-form/sso-form.component';
 import { UserFormComponent } from './user-form/user-form.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { UserTabsComponent } from './user-tabs/user-tabs.component';
@@ -34,7 +35,8 @@ import { UserTabsComponent } from './user-tabs/user-tabs.component';
     RoleListComponent,
     UserTabsComponent,
     UserListComponent,
-    UserFormComponent
+    UserFormComponent,
+    SsoFormComponent
   ],
   exports: [LogoutComponent]
 })
