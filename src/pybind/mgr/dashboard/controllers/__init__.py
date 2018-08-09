@@ -582,13 +582,13 @@ class BaseController(object):
         def host(self):
             base = self._creq.base
             base = base[len(self.scheme)+3:]
-            return base[:base.find(":")]
+            return base[:base.find(":")] if ":" in base else base
 
         @property
         def port(self):
             base = self._creq.base
             base = base[len(self.scheme)+3:]
-            return int(base[base.find(":")+1:])
+            return int(base[base.find(":")+1:]) if ":" in base else 443
 
         @property
         def path_info(self):

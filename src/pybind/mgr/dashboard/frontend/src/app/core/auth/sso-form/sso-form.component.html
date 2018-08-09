@@ -1,0 +1,263 @@
+<cd-user-tabs></cd-user-tabs>
+
+<div class="col-sm-12 col-lg-6">
+  <form name="ssoForm"
+        class="form-horizontal"
+        #formDir="ngForm"
+        [formGroup]="ssoForm"
+        novalidate>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <span i18n>Single Sign-On</span>
+        </h3>
+      </div>
+      <div class="panel-body">
+
+        <!-- Protocol -->
+        <div class="form-group">
+          <label class="control-label col-sm-3"
+                 for="SSO_PROTOCOL">
+            <span i18n>Protocol</span>
+          </label>
+          <div class="col-sm-9">
+            <select id="SSO_PROTOCOL"
+                  name="SSO_PROTOCOL"
+                  class="form-control"
+                  formControlName="SSO_PROTOCOL"
+                  autofocus>
+              <option i18n value="">Disabled</option>
+              <option i18n value="saml2">SAML 2</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="ssoForm.getValue('SSO_PROTOCOL') === 'saml2'">
+
+          <legend i18n>Identity Provider</legend>
+
+          <!-- Entity id -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_IDP_ENTITY_ID', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_IDP_ENTITY_ID">Entity id
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                     type="text"
+                     i18n-placeholder
+                     placeholder="e.g., https://my-sp/idp"
+                     id="SSO_SAML2_IDP_ENTITY_ID"
+                     name="SSO_SAML2_IDP_ENTITY_ID"
+                     formControlName="SSO_SAML2_IDP_ENTITY_ID">
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_IDP_ENTITY_ID', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- URL single sign on -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_IDP_SSO_URL', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_IDP_SSO_URL">Single sign-on URL
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                     type="text"
+                     i18n-placeholder
+                     placeholder="e.g., https://localhost:9443/idp/profile/SAML2/Redirect/SSO"
+                     id="SSO_SAML2_IDP_SSO_URL"
+                     name="SSO_SAML2_IDP_SSO_URL"
+                     formControlName="SSO_SAML2_IDP_SSO_URL">
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_IDP_SSO_URL', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- URL single logout -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_IDP_SLO_URL', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_IDP_SLO_URL">Single logout URL
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                     type="text"
+                     i18n-placeholder
+                     placeholder="e.g., https://localhost:9443/idp/profile/SAML2/Redirect/SLO"
+                     id="SSO_SAML2_IDP_SLO_URL"
+                     name="SSO_SAML2_IDP_SLO_URL"
+                     formControlName="SSO_SAML2_IDP_SLO_URL">
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_IDP_SLO_URL', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- Signing cert -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_IDP_SIGNING_CERT', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_IDP_SIGNING_CERT">Signing cert
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <textarea class="form-control"
+                        rows="6"
+                        i18n-placeholder
+                        placeholder="Signing cert..."
+                        id="SSO_SAML2_IDP_SIGNING_CERT"
+                        name="SSO_SAML2_IDP_SIGNING_CERT"
+                        formControlName="SSO_SAML2_IDP_SIGNING_CERT"></textarea>
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_IDP_SIGNING_CERT', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- Encryption cert -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_IDP_ENCRYPTION_CERT', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_IDP_ENCRYPTION_CERT">Encryption cert
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <textarea class="form-control"
+                        rows="6"
+                        i18n-placeholder
+                        placeholder="Encryption cert..."
+                        id="SSO_SAML2_IDP_ENCRYPTION_CERT"
+                        name="SSO_SAML2_IDP_ENCRYPTION_CERT"
+                        formControlName="SSO_SAML2_IDP_ENCRYPTION_CERT"></textarea>
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_IDP_ENCRYPTION_CERT', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- Username attribute -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_IDP_USERNAME_ATTRIBUTE', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_IDP_USERNAME_ATTRIBUTE">Username attribute
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                     type="text"
+                     i18n-placeholder
+                     placeholder="e.g., uid"
+                     id="SSO_SAML2_IDP_USERNAME_ATTRIBUTE"
+                     name="SSO_SAML2_IDP_USERNAME_ATTRIBUTE"
+                     formControlName="SSO_SAML2_IDP_USERNAME_ATTRIBUTE">
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_IDP_USERNAME_ATTRIBUTE', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <legend i18n>Service Provider</legend>
+
+          <!-- Entity id -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_SP_ENTITY_ID', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_SP_ENTITY_ID">Entity id
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                     type="text"
+                     i18n-placeholder
+                     placeholder="e.g., http://my-sp/sp2"
+                     id="SSO_SAML2_SP_ENTITY_ID"
+                     name="SSO_SAML2_SP_ENTITY_ID"
+                     formControlName="SSO_SAML2_SP_ENTITY_ID">
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_SP_ENTITY_ID', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- URL -->
+          <div class="form-group"
+               [ngClass]="{'has-error': ssoForm.showError('SSO_SAML2_SP_URL', formDir)}">
+            <label i18n
+                   class="control-label col-sm-3"
+                   for="SSO_SAML2_SP_URL">URL
+              <span class="required"></span>
+            </label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                     type="text"
+                     i18n-placeholder
+                     placeholder="e.g., https://192.168.1.68:41301"
+                     id="SSO_SAML2_SP_URL"
+                     name="SSO_SAML2_SP_URL"
+                     formControlName="SSO_SAML2_SP_URL">
+              <span i18n
+                    class="help-block"
+                    *ngIf="ssoForm.showError('SSO_SAML2_SP_URL', formDir, 'required')">
+                This field is required.
+              </span>
+            </div>
+          </div>
+
+          <!-- Metadata -->
+          <div class="col-sm-12">
+            <div class="pull-right">
+              <a i18n
+                 href="/auth/saml/metadata"
+                 target="_blank">
+                Metadata
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="panel-footer">
+        <div class="button-group text-right">
+          <cd-submit-button [form]="formDir"
+                            type="button"
+                            (submitAction)="submit()">
+            <span i18n>Save</span>
+          </cd-submit-button>
+          <button i18n
+                  type="button"
+                  class="btn btn-sm btn-default"
+                  routerLink="/users">
+            Back
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -10,6 +10,7 @@ from .. import logger
 from ..exceptions import DashboardException
 from ..services.auth import AuthManager
 from ..services.access_control import ACCESS_CTRL_DB
+from ..settings import Settings
 from ..tools import Session
 
 
@@ -50,12 +51,17 @@ class Auth(RESTController):
         cherrypy.session[Session.USERNAME] = None
         cherrypy.session[Session.TS] = None
 
+    def _get_login_url(self):
+        if Settings.SSO_PROTOCOL == 'saml2':
+            return 'auth/saml/login'
+        return '#/login'
+
     def list(self):
-        saml = True  # TODO
         if not cherrypy.session.get(Session.USERNAME):
             return {
-                'login_url': 'auth/saml/login' if saml else '#/login'
+                'login_url': self._get_login_url()
             }
+        # TODO : check if authenticated user has been removed
         user = ACCESS_CTRL_DB.get_user(cherrypy.session.get(Session.USERNAME))
         return {
             'username': user.username,
