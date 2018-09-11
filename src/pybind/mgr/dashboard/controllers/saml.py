@@ -6,13 +6,29 @@ import cherrypy
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
+from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
 
 # from ..exceptions import UserDoesNotExist
 # from ..services.access_control import ACCESS_CTRL_DB
+from ..security import Scope
 from ..services.saml_service import get_saml2_onelogin_config
 from ..settings import Settings
 from ..tools import Session
-from . import Controller, Endpoint, BaseController
+from . import Controller, Endpoint, BaseController, UiApiController
+
+
+# TODO set scope security
+@UiApiController('/saml/settings')
+class Saml2Settings(BaseController):
+
+    @Endpoint('GET')
+    def from_idp_metadata(self):
+        from .. import logger
+        #logger.warn('########### ' + str(url))
+        url = 'https://testidp.cloud.suse.de/simplesamlphp/saml2/idp/metadata.php'
+        entity_id = 'https://testidp.cloud.suse.de/simplesamlphp/saml2/idp/metadata.php'
+        return OneLogin_Saml2_IdPMetadataParser.parse_remote(url, validate_cert=False, entity_id=entity_id)
+
 
 @Controller('/auth/saml', secure=False)
 class Saml2(BaseController):

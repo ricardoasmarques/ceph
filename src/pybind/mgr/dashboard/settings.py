@@ -42,11 +42,11 @@ class Options(object):
     SSO_PROTOCOL = ('', str)
     SSO_SAML2_SP_ENTITY_ID = ('', str)
     SSO_SAML2_SP_URL = ('', str)
-    SSO_SAML2_IDP_ENTITY_ID = ('', str)
-    SSO_SAML2_IDP_SSO_URL = ('', str)
-    SSO_SAML2_IDP_SLO_URL = ('', str)
-    SSO_SAML2_IDP_SIGNING_CERT = ('', str)
-    SSO_SAML2_IDP_ENCRYPTION_CERT = ('', str)
+    SSO_SAML2_IDP_ENTITY_ID = ('', str)# TODO Remove?
+    SSO_SAML2_IDP_SSO_URL = ('', str)# TODO Remove?
+    SSO_SAML2_IDP_SLO_URL = ('', str)# TODO Remove?
+    SSO_SAML2_IDP_SIGNING_CERT = ('', str)# TODO Remove?
+    SSO_SAML2_IDP_ENCRYPTION_CERT = ('', str)# TODO Remove?
     SSO_SAML2_IDP_USERNAME_ATTRIBUTE = ('', str)
 
     @staticmethod

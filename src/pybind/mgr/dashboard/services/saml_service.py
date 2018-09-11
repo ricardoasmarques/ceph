@@ -36,6 +36,7 @@ def get_saml2_onelogin_config():
             }
         },
         'security': {
-            'wantAttributeStatement': False
+            'wantAttributeStatement': False,
+            'metadataValidUntil': '9999-12-31T23:59:59Z'
         }
     }
