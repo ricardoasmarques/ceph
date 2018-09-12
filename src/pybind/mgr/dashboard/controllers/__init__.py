@@ -588,6 +588,7 @@ class BaseController(object):
         def port(self):
             base = self._creq.base
             base = base[len(self.scheme)+3:]
+            # TODO if HTTP, return 80
             return int(base[base.find(":")+1:]) if ":" in base else 443
 
         @property
