@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import errno
 from distutils.version import StrictVersion
 from distutils.util import strtobool
+from .services.sso import load_sso_db
 import os
 import socket
 import tempfile
@@ -64,6 +65,8 @@ from .tools import SessionExpireAtBrowserCloseTool, NotificationQueue, \
 from .services.auth import AuthManager, AuthManagerTool
 from .services.access_control import ACCESS_CONTROL_COMMANDS, \
                                      handle_access_control_command
+from .services.sso import SSO_COMMANDS, \
+                          handle_sso_command
 from .services.exception import dashboard_exception_handler
 from .settings import options_command_list, options_schema_list, \
                       handle_option_command
@@ -233,6 +236,7 @@ class Module(MgrModule, CherryPyConfig):
     ]
     COMMANDS.extend(options_command_list())
     COMMANDS.extend(ACCESS_CONTROL_COMMANDS)
+    COMMANDS.extend(SSO_COMMANDS)
 
     OPTIONS = [
         {'name': 'server_addr'},
@@ -276,6 +280,7 @@ class Module(MgrModule, CherryPyConfig):
             _cov.start()
 
         AuthManager.initialize()
+        load_sso_db()
 
         uri = self.await_configuration()
         if uri is None:
@@ -326,6 +331,9 @@ class Module(MgrModule, CherryPyConfig):
         if res[0] != -errno.ENOSYS:
             return res
         res = handle_access_control_command(cmd)
+        if res[0] != -errno.ENOSYS:
+            return res
+        res = handle_sso_command(cmd)
         if res[0] != -errno.ENOSYS:
             return res
         elif cmd['prefix'] == 'dashboard set-session-expire':

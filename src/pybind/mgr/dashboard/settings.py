@@ -38,17 +38,6 @@ class Options(object):
     GRAFANA_API_TOKEN = ('', str)
     GRAFANA_API_AUTH_METHOD = ('', str)  # Either 'password' or 'token'
 
-    # Single sign-on
-    SSO_PROTOCOL = ('', str)
-    SSO_SAML2_SP_ENTITY_ID = ('', str)
-    SSO_SAML2_SP_URL = ('', str)
-    SSO_SAML2_IDP_ENTITY_ID = ('', str)# TODO Remove?
-    SSO_SAML2_IDP_SSO_URL = ('', str)# TODO Remove?
-    SSO_SAML2_IDP_SLO_URL = ('', str)# TODO Remove?
-    SSO_SAML2_IDP_SIGNING_CERT = ('', str)# TODO Remove?
-    SSO_SAML2_IDP_ENCRYPTION_CERT = ('', str)# TODO Remove?
-    SSO_SAML2_IDP_USERNAME_ATTRIBUTE = ('', str)
-
     @staticmethod
     def has_default_value(name):
         return getattr(Settings, name, None) is None or \

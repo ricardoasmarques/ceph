@@ -10,7 +10,7 @@ from .. import logger
 from ..exceptions import DashboardException
 from ..services.auth import AuthManager
 from ..services.access_control import ACCESS_CTRL_DB
-from ..settings import Settings
+from ..services.sso import SSO_DB
 from ..tools import Session
 
 
@@ -52,7 +52,7 @@ class Auth(RESTController):
         cherrypy.session[Session.TS] = None
 
     def _get_login_url(self):
-        if Settings.SSO_PROTOCOL == 'saml2':
+        if SSO_DB.protocol == 'saml2':
             return 'auth/saml/login'
         return '#/login'
 

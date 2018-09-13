@@ -6,28 +6,12 @@ import cherrypy
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
-from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
 
-# from ..exceptions import UserDoesNotExist
-# from ..services.access_control import ACCESS_CTRL_DB
-from ..security import Scope
-from ..services.saml_service import get_saml2_onelogin_config
-from ..settings import Settings
+from ..exceptions import UserDoesNotExist
+from ..services.access_control import ACCESS_CTRL_DB
+from ..services.sso import SSO_DB
 from ..tools import Session
-from . import Controller, Endpoint, BaseController, UiApiController
-
-
-# TODO set scope security
-@UiApiController('/saml/settings')
-class Saml2Settings(BaseController):
-
-    @Endpoint('GET')
-    def from_idp_metadata(self):
-        from .. import logger
-        #logger.warn('########### ' + str(url))
-        url = 'https://testidp.cloud.suse.de/simplesamlphp/saml2/idp/metadata.php'
-        entity_id = 'https://testidp.cloud.suse.de/simplesamlphp/saml2/idp/metadata.php'
-        return OneLogin_Saml2_IdPMetadataParser.parse_remote(url, validate_cert=False, entity_id=entity_id)
+from . import Controller, Endpoint, BaseController
 
 
 @Controller('/auth/saml', secure=False)
@@ -42,8 +26,7 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': kwargs
         }
-        config = get_saml2_onelogin_config()
-        saml_settings = OneLogin_Saml2_Settings(config)
+        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
         auth = OneLogin_Saml2_Auth(req, saml_settings)
         auth.process_response()
         errors = auth.get_errors()
@@ -54,12 +37,14 @@ class Saml2(BaseController):
             # TODO check if attribute exists
             #from .. import logger
             #logger.warn('########### ' + str(auth.get_attributes()))
-            username = auth.get_attribute(Settings.SSO_SAML2_IDP_USERNAME_ATTRIBUTE)[0]
+            username = auth.get_attribute(SSO_DB.saml2.get_username_attribute())[0]
             # TODO check if user exists
-            #try:
-            #    ACCESS_CTRL_DB.get_user(username)
-            #except UserDoesNotExist:
-            #    cherrypy.HTTPRedirect("/auth/saml/error/2")
+            try:
+                ACCESS_CTRL_DB.get_user(username)
+            except UserDoesNotExist:
+                ACCESS_CTRL_DB.create_user(username, None, None, None)
+                ACCESS_CTRL_DB.save()
+                #cherrypy.HTTPRedirect("/auth/saml/error/2")
             cherrypy.session[Session.USERNAME] = username
             cherrypy.session[Session.TS] = now
             cherrypy.session[Session.EXPIRE_AT_BROWSER_CLOSE] = False
@@ -84,8 +69,7 @@ class Saml2(BaseController):
 
     @Endpoint(xml=True)
     def metadata(self):
-        config = get_saml2_onelogin_config()
-        saml_settings = OneLogin_Saml2_Settings(config)
+        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
         return saml_settings.get_sp_metadata()
 
     @Endpoint(json_response=False)
@@ -98,7 +82,6 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': {}
         }
-        config = get_saml2_onelogin_config()
-        saml_settings = OneLogin_Saml2_Settings(config)
+        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
         auth = OneLogin_Saml2_Auth(req, saml_settings)
         raise cherrypy.HTTPRedirect(auth.login())
