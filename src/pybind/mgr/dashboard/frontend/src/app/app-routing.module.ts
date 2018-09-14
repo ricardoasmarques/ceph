@@ -22,7 +22,6 @@ import { RgwUserListComponent } from './ceph/rgw/rgw-user-list/rgw-user-list.com
 import { LoginComponent } from './core/auth/login/login.component';
 import { RoleFormComponent } from './core/auth/role-form/role-form.component';
 import { RoleListComponent } from './core/auth/role-list/role-list.component';
-import { SsoFormComponent } from './core/auth/sso-form/sso-form.component';
 import { UserFormComponent } from './core/auth/user-form/user-form.component';
 import { UserListComponent } from './core/auth/user-list/user-list.component';
 import { ForbiddenComponent } from './core/forbidden/forbidden.component';
@@ -210,8 +209,6 @@ const routes: Routes = [
           { path: 'edit/:name', component: RoleFormComponent, data: { breadcrumbs: 'Edit' } }
         ]
       }
-      ,
-      { path: 'sso', component: SsoFormComponent, data: { breadcrumbs: 'Single Sign-On' } }
     ]
   },
   // System
