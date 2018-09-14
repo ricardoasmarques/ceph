@@ -29,12 +29,13 @@ export class AuthService {
       });
   }
 
-  logout(callback: Function) {
-    return this.http.delete('api/auth').subscribe(() => {
+  logout(callback: Function = null) {
+    return this.http.post('api/auth/logout', null).subscribe((resp: any) => {
       this.authStorageService.remove();
       if (callback) {
         callback();
       }
+      window.location.replace(resp.redirect_url);
     });
   }
 }

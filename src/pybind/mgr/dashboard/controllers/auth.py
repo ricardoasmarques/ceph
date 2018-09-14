@@ -46,10 +46,17 @@ class Auth(RESTController):
                                  code='invalid_credentials',
                                  component='auth')
 
-    def bulk_delete(self):
+    @RESTController.Collection('POST')
+    def logout(self):
         logger.debug('Logout successful')
         cherrypy.session[Session.USERNAME] = None
         cherrypy.session[Session.TS] = None
+        redirect_url = '#/login'
+        if SSO_DB.protocol == 'saml2':
+            redirect_url = 'auth/saml/slo'
+        return {
+            'redirect_url': redirect_url
+        }
 
     def _get_login_url(self):
         if SSO_DB.protocol == 'saml2':

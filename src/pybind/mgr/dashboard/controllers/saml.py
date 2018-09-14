@@ -34,17 +34,17 @@ class Saml2(BaseController):
         if auth.is_authenticated():
             now = time.time()
             cherrypy.session.regenerate()
-            # TODO check if attribute exists
-            #from .. import logger
-            #logger.warn('########### ' + str(auth.get_attributes()))
-            username = auth.get_attribute(SSO_DB.saml2.get_username_attribute())[0]
-            # TODO check if user exists
+            username_attribute = auth.get_attribute(SSO_DB.saml2.get_username_attribute())
+            if username_attribute is None:
+                raise cherrypy.HTTPError(400,
+                                         'SSO error - `{}` not found in auth attributes.'
+                                         .format(SSO_DB.saml2.get_username_attribute()))
+            username = username_attribute[0]
             try:
                 ACCESS_CTRL_DB.get_user(username)
             except UserDoesNotExist:
                 ACCESS_CTRL_DB.create_user(username, None, None, None)
                 ACCESS_CTRL_DB.save()
-                #cherrypy.HTTPRedirect("/auth/saml/error/2")
             cherrypy.session[Session.USERNAME] = username
             cherrypy.session[Session.TS] = now
             cherrypy.session[Session.EXPIRE_AT_BROWSER_CLOSE] = False
@@ -56,17 +56,6 @@ class Saml2(BaseController):
                 'reason': auth.get_last_error_reason()
             }
 
-    #@Endpoint(json_response=False)
-    #def error(self, error_code):
-    #    error_message = {
-    #        '1': 'Cannot get username parameter',
-    #        '2': 'Username does not exist',
-    #    }[error_code]
-    #    return '<html>' \
-    #           '<h1>SSO authentication error</h1>' \
-    #           '<p>{}</p>' \
-    #           '</html>'.format(error_message)
-
     @Endpoint(xml=True)
     def metadata(self):
         saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
@@ -75,7 +64,7 @@ class Saml2(BaseController):
     @Endpoint(json_response=False)
     def login(self):
         req = {
-            'https': 'on',
+            'https': 'on',#TODO
             'http_host': self._request.host,
             'script_name': self._request.path_info,
             'server_port': str(self._request.port),
@@ -85,3 +74,23 @@ class Saml2(BaseController):
         saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
         auth = OneLogin_Saml2_Auth(req, saml_settings)
         raise cherrypy.HTTPRedirect(auth.login())
+
+    @Endpoint(json_response=False)
+    def slo(self):
+        req = {
+            'https': 'on', #TODO
+            'http_host': self._request.host,
+            'script_name': self._request.path_info,
+            'server_port': str(self._request.port),
+            'get_data': {},
+            'post_data': {}
+        }
+        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
+        auth = OneLogin_Saml2_Auth(req, saml_settings)
+        raise cherrypy.HTTPRedirect(auth.logout())
+
+    @Endpoint(json_response=False)
+    def logout(self, **kwargs):
+        cherrypy.session[Session.USERNAME] = None
+        cherrypy.session[Session.TS] = None
+        raise cherrypy.HTTPRedirect("/")

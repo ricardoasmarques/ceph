@@ -14,7 +14,7 @@ import { AuthStorageService } from '../../../shared/services/auth-storage.servic
 })
 export class LoginComponent implements OnInit {
   model = new Credentials();
-  isLocalLogin = false;
+  isLoginActive = false;
 
   constructor(
     private authService: AuthService,
@@ -37,7 +37,7 @@ export class LoginComponent implements OnInit {
       this.authService.current().then((login) => {
         if (login.login_url) {
           if (login.login_url === '#/login') {
-            this.isLocalLogin = true;
+            this.isLoginActive = true;
           } else {
             window.location.replace(login.login_url);
           }

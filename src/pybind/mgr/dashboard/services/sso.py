@@ -17,7 +17,7 @@ class Saml2(object):
         self.onelogin_settings = onelogin_settings
 
     def get_username_attribute(self):
-        return self.onelogin_settings['sp']['attributeConsumingService']['requestedAttributes'][0]['name']# TODO - check None
+        return self.onelogin_settings['sp']['attributeConsumingService']['requestedAttributes'][0]['name']
 
     def to_dict(self):
         return {
@@ -156,7 +156,6 @@ def handle_sso_command(cmd):
                     'url': '{}/auth/saml'.format(ceph_dashboard_base_url),
                     'binding': "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
                 },
-                # TODO test when idp doen's return this attribute
                 'attributeConsumingService': {
                     'serviceName': "Ceph Dashboard",
                     "serviceDescription": "Ceph Dashboard Service",
