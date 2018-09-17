@@ -7,8 +7,8 @@ import cherrypy
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 
-from ..exceptions import UserDoesNotExist
-from ..services.access_control import ACCESS_CTRL_DB
+from ..exceptions import UserDoesNotExist, RoleDoesNotExist
+from ..services.access_control import ACCESS_CTRL_DB, SYSTEM_ROLES
 from ..services.sso import SSO_DB
 from ..tools import Session
 from . import Controller, Endpoint, BaseController
@@ -43,8 +43,18 @@ class Saml2(BaseController):
             try:
                 ACCESS_CTRL_DB.get_user(username)
             except UserDoesNotExist:
-                ACCESS_CTRL_DB.create_user(username, None, None, None)
+                if not SSO_DB.auto_create_user:
+                    raise cherrypy.HTTPError(400,
+                                             'SSO error - Username `{}` does not exist.'
+                                             .format(username))
+                try:
+                    user_role = ACCESS_CTRL_DB.get_role(SSO_DB.default_role)
+                except RoleDoesNotExist:
+                    user_role = SYSTEM_ROLES[SSO_DB.default_role]
+                user = ACCESS_CTRL_DB.create_user(username, None, None, None)
+                user.set_roles([user_role])
                 ACCESS_CTRL_DB.save()
+
             cherrypy.session[Session.USERNAME] = username
             cherrypy.session[Session.TS] = now
             cherrypy.session[Session.EXPIRE_AT_BROWSER_CLOSE] = False

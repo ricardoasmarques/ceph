@@ -11,10 +11,11 @@ import bcrypt
 
 from .. import mgr, logger
 from ..security import Scope, Permission
+from ..services import sso
 from ..exceptions import RoleAlreadyExists, RoleDoesNotExist, ScopeNotValid, \
                          PermissionNotValid, RoleIsAssociatedWithUser, \
                          UserAlreadyExists, UserDoesNotExist, ScopeNotInRole, \
-                         RoleNotInUser
+                         RoleNotInUser, RoleIsSsoDefaultRole
 
 
 # password hashing algorithm
@@ -244,6 +245,9 @@ class AccessControlDB(object):
             for username, user in self.users.items():
                 if role in user.roles:
                     raise RoleIsAssociatedWithUser(name, username)
+
+            if sso.SSO_DB.default_role == name:
+                raise RoleIsSsoDefaultRole(name)
 
             del self.roles[name]
 
@@ -491,7 +495,7 @@ Username and password updated''', ''
                 return -errno.EPERM, '', "Cannot delete system role '{}'" \
                                          .format(rolename)
             return -errno.ENOENT, '', str(ex)
-        except RoleIsAssociatedWithUser as ex:
+        except (RoleIsAssociatedWithUser, RoleIsSsoDefaultRole) as ex:
             return -errno.EPERM, '', str(ex)
 
     elif cmd['prefix'] == 'dashboard ac-role-add-scope-perms':

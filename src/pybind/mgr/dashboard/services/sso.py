@@ -10,6 +10,7 @@ from onelogin.saml2.errors import OneLogin_Saml2_Error
 from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
 
 from .. import mgr, logger
+from ..services import access_control
 
 
 class Saml2(object):
@@ -33,8 +34,10 @@ class SsoDB(object):
     VERSION = 1
     SSODB_CONFIG_KEY = "ssodb_v"
 
-    def __init__(self, version, protocol, saml2):
+    def __init__(self, version, auto_create_user, default_role, protocol, saml2):
         self.version = version
+        self.auto_create_user = auto_create_user
+        self.default_role = default_role
         self.protocol = protocol
         self.saml2 = saml2
         self.lock = threading.RLock()
@@ -42,6 +45,8 @@ class SsoDB(object):
     def save(self):
         with self.lock:
             db = {
+                'default_role': self.default_role,
+                'auto_create_user': self.auto_create_user,
                 'protocol': self.protocol,
                 'saml2': self.saml2.to_dict(),
                 'version': self.version
@@ -66,13 +71,13 @@ class SsoDB(object):
         json_db = mgr.get_store(cls.ssodb_config_key(), None)
         if json_db is None:
             logger.debug("SSO: No DB v%s found, creating new...", cls.VERSION)
-            db = cls(cls.VERSION, '', Saml2({}))
+            db = cls(cls.VERSION, True, 'read-only', '', Saml2({}))
             # check if we can update from a previous version database
             db.check_and_update_db()
             return db
 
         db = json.loads(json_db)
-        return cls(db['version'], db.get('protocol'), Saml2.from_dict(db.get('saml2')))
+        return cls(db['version'], db.get('auto_create_user'), db.get('default_role'), db.get('protocol'), Saml2.from_dict(db.get('saml2')))
 
 
 SSO_DB = None
@@ -95,6 +100,22 @@ SSO_COMMANDS = [
     {
         'cmd': 'dashboard sso-status',
         'desc': 'Get Single Sign-On status',
+        'perm': 'r'
+    },
+    {
+        'cmd': 'dashboard sso-auto-create-user-enable '
+               'name=default_role,type=CephString,req=false',
+        'desc': 'Enable user automatic creation',
+        'perm': 'w'
+    },
+    {
+        'cmd': 'dashboard sso-auto-create-user-disable',
+        'desc': 'Disable user automatic creation',
+        'perm': 'w'
+    },
+    {
+        'cmd': 'dashboard sso-auto-create-user-status',
+        'desc': 'Get user automatic creation status',
         'perm': 'r'
     },
     {
@@ -127,18 +148,40 @@ def handle_sso_command(cmd):
                           'use `ceph dashboard sso-saml2-setup`'
         SSO_DB.protocol = 'saml2'
         SSO_DB.save()
-        return 0, '', ''
+        return 0, 'SSO is "enabled" with "SAML2" protocol.', ''
 
     if cmd['prefix'] == 'dashboard sso-disable':
         SSO_DB.protocol = ''
         SSO_DB.save()
-        return 0, 'SSO is disabled', ''
+        return 0, 'SSO is disabled.', ''
 
     if cmd['prefix'] == 'dashboard sso-status':
         if SSO_DB.protocol == 'saml2':
-            return 0, 'SSO is enabled (SAML2 protocol).', ''
+            return 0, 'SSO is "enabled" with "SAML2" protocol.', ''
 
-        return 0, 'SSO is disabled', ''
+        return 0, 'SSO is "disabled".', ''
+
+    if cmd['prefix'] == 'dashboard sso-auto-create-user-enable':
+        default_role = cmd['default_role'] if 'default_role' in cmd else None
+        if default_role:
+            all_roles = dict(access_control.ACCESS_CTRL_DB.roles)
+            all_roles.update(access_control.SYSTEM_ROLES)
+            if default_role not in all_roles:
+                return 0, '', 'Role "{}" does not exist.'.format(default_role)
+            SSO_DB.default_role = default_role
+        SSO_DB.auto_create_user = True
+        SSO_DB.save()
+        return 0, 'Automatic user creation is "enabled" with default role "{}".'.format(SSO_DB.default_role), ''
+
+    if cmd['prefix'] == 'dashboard sso-auto-create-user-disable':
+        SSO_DB.auto_create_user = False
+        SSO_DB.save()
+        return 0, 'Automatic user creation is "disabled".', ''
+
+    if cmd['prefix'] == 'dashboard sso-auto-create-user-status':
+        if SSO_DB.auto_create_user:
+            return 0, 'Automatic user creation is "enabled" with default role "{}".'.format(SSO_DB.default_role), ''
+        return 0, 'Automatic user creation is "disabled".', ''
 
     if cmd['prefix'] == 'dashboard sso-saml2-show':
         return 0, json.dumps(SSO_DB.saml2.to_dict()), ''

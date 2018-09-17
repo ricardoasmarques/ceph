@@ -12,7 +12,7 @@ from ..services.access_control import handle_access_control_command, \
                                       load_access_control_db, \
                                       password_hash, AccessControlDB, \
                                       SYSTEM_ROLES
-
+from ..services.sso import SSO_DB
 
 class CmdException(Exception):
     def __init__(self, retcode, message):
@@ -470,6 +470,18 @@ class AccessControlTest(unittest.TestCase):
         self.assertEqual(str(ctx.exception),
                          "Role 'test_role' is still associated with user "
                          "'guest'")
+
+    # TODO
+    #def test_delete_sso_default_role(self):
+    #    self.test_create_role()
+    #    default_role = SSO_DB.default_role
+    #    SSO_DB.default_role = 'test_role'
+    #    with self.assertRaises(CmdException) as ctx:
+    #        self.exec_cmd('ac-role-delete', rolename='test_role')
+    #    SSO_DB.default_role = default_role
+    #    self.assertEqual(ctx.exception.retcode, -errno.EPERM)
+    #    self.assertEqual(str(ctx.exception),
+    #                     "Cannot delete system role 'administrator'")
 
     def test_set_user_info(self):
         self.test_create_user()

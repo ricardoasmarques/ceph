@@ -5,7 +5,7 @@ import cherrypy
 
 from . import ApiController, RESTController, UiApiController
 from ..exceptions import RoleDoesNotExist, DashboardException,\
-    RoleIsAssociatedWithUser, RoleAlreadyExists
+    RoleIsAssociatedWithUser, RoleAlreadyExists, RoleIsSsoDefaultRole
 from ..security import Scope as SecurityScope, Permission
 from ..services.access_control import ACCESS_CTRL_DB, SYSTEM_ROLES
 
@@ -98,6 +98,10 @@ class Role(RESTController):
         except RoleIsAssociatedWithUser:
             raise DashboardException(msg='Role is associated with user',
                                      code='role_is_associated_with_user',
+                                     component='role')
+        except RoleIsSsoDefaultRole:
+            raise DashboardException(msg='Cannot delete default SSO role',
+                                     code='cannot_delete_default_sso_role',
                                      component='role')
         ACCESS_CTRL_DB.save()
 

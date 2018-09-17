@@ -77,6 +77,13 @@ class RoleIsAssociatedWithUser(Exception):
             .format(rolename, username))
 
 
+class RoleIsSsoDefaultRole(Exception):
+    def __init__(self, rolename):
+        super(RoleIsSsoDefaultRole, self).__init__(
+            "Role '{}' is the default role for SSO"
+            .format(rolename))
+
+
 class UserAlreadyExists(Exception):
     def __init__(self, name):
         super(UserAlreadyExists, self).__init__(
