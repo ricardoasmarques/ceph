@@ -11,7 +11,6 @@ import bcrypt
 
 from .. import mgr, logger
 from ..security import Scope, Permission
-from ..services import sso
 from ..exceptions import RoleAlreadyExists, RoleDoesNotExist, ScopeNotValid, \
                          PermissionNotValid, RoleIsAssociatedWithUser, \
                          UserAlreadyExists, UserDoesNotExist, ScopeNotInRole, \
@@ -246,7 +245,8 @@ class AccessControlDB(object):
                 if role in user.roles:
                     raise RoleIsAssociatedWithUser(name, username)
 
-            if sso.SSO_DB.default_role == name:
+            from .sso import SSO_DB
+            if SSO_DB.default_role == name:
                 raise RoleIsSsoDefaultRole(name)
 
             del self.roles[name]

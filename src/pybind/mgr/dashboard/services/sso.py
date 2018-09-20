@@ -10,7 +10,6 @@ from onelogin.saml2.errors import OneLogin_Saml2_Error
 from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
 
 from .. import mgr, logger
-from ..services import access_control
 
 
 class Saml2(object):
@@ -164,8 +163,9 @@ def handle_sso_command(cmd):
     if cmd['prefix'] == 'dashboard sso-auto-create-user-enable':
         default_role = cmd['default_role'] if 'default_role' in cmd else None
         if default_role:
-            all_roles = dict(access_control.ACCESS_CTRL_DB.roles)
-            all_roles.update(access_control.SYSTEM_ROLES)
+            from .access_control import ACCESS_CTRL_DB, SYSTEM_ROLES
+            all_roles = dict(ACCESS_CTRL_DB.roles)
+            all_roles.update(SYSTEM_ROLES)
             if default_role not in all_roles:
                 return 0, '', 'Role "{}" does not exist.'.format(default_role)
             SSO_DB.default_role = default_role
