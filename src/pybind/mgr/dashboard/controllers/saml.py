@@ -26,8 +26,7 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': kwargs
         }
-        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
-        auth = OneLogin_Saml2_Auth(req, saml_settings)
+        auth = OneLogin_Saml2_Auth(req, SSO_DB.saml2.onelogin_settings)
         auth.process_response()
         errors = auth.get_errors()
 
@@ -81,8 +80,7 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': {}
         }
-        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
-        auth = OneLogin_Saml2_Auth(req, saml_settings)
+        auth = OneLogin_Saml2_Auth(req, SSO_DB.saml2.onelogin_settings)
         raise cherrypy.HTTPRedirect(auth.login())
 
     @Endpoint(json_response=False)
@@ -95,8 +93,7 @@ class Saml2(BaseController):
             'get_data': {},
             'post_data': {}
         }
-        saml_settings = OneLogin_Saml2_Settings(SSO_DB.saml2.onelogin_settings)
-        auth = OneLogin_Saml2_Auth(req, saml_settings)
+        auth = OneLogin_Saml2_Auth(req, SSO_DB.saml2.onelogin_settings)
         raise cherrypy.HTTPRedirect(auth.logout())
 
     @Endpoint(json_response=False)
