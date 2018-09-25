@@ -127,7 +127,9 @@ SSO_COMMANDS = [
                'name=ceph_dashboard_base_url,type=CephString '
                'name=idp_metadata_url,type=CephString '
                'name=idp_username_attribute,type=CephString,req=false '
-               'name=idp_entity_id,type=CephString,req=false',
+               'name=idp_entity_id,type=CephString,req=false '
+               'name=sp_x_509_cert,type=CephString,req=false '
+               'name=sp_private_key,type=CephString,req=false',
         'desc': 'Setup SAML2 Single Sign-On',
         'perm': 'w'
     },
@@ -191,6 +193,23 @@ def handle_sso_command(cmd):
         idp_metadata_url = cmd['idp_metadata_url']
         idp_username_attribute = cmd['idp_username_attribute'] if 'idp_username_attribute' in cmd else 'uid'
         idp_entity_id = cmd['idp_entity_id'] if 'idp_entity_id' in cmd else None
+        sp_x_509_cert = cmd['sp_x_509_cert'] if 'sp_x_509_cert' in cmd else ""
+        sp_private_key = cmd['sp_private_key'] if 'sp_private_key' in cmd else ""
+        if sp_x_509_cert and not sp_private_key:
+            return 0, '', 'Missing parameter `sp_private_key`.'
+        if not sp_x_509_cert and sp_private_key:
+            return 0, '', 'Missing parameter `sp_x_509_cert`.'
+        sp_signature_enabled = sp_x_509_cert is not "" and sp_private_key is not ""
+        try:
+            file = open(sp_x_509_cert, 'r')
+            sp_x_509_cert = file.read()
+        except FileNotFoundError:
+            pass
+        try:
+            file = open(sp_private_key, 'r')
+            sp_private_key = file.read()
+        except FileNotFoundError:
+            pass
         idp_settings = OneLogin_Saml2_IdPMetadataParser.parse_remote(idp_metadata_url, validate_cert=False, entity_id=idp_entity_id)
         settings = {
             'sp': {
@@ -213,9 +232,16 @@ def handle_sso_command(cmd):
                     'url': '{}/auth/saml/logout'.format(ceph_dashboard_base_url),
                     'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
                 },
+                "x509cert": sp_x_509_cert,
+                "privateKey": sp_private_key
             },
             'security': {
                 'wantAttributeStatement': False,
+                "authnRequestsSigned": sp_signature_enabled,
+                "logoutRequestSigned": sp_signature_enabled,
+                "logoutResponseSigned": sp_signature_enabled,
+                "wantMessagesSigned": sp_signature_enabled,
+                "wantAssertionsSigned": sp_signature_enabled,
                 'metadataValidUntil': ''
             }
         }

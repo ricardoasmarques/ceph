@@ -36,8 +36,11 @@ class Saml2(BaseController):
             username_attribute = auth.get_attribute(SSO_DB.saml2.get_username_attribute())
             if username_attribute is None:
                 raise cherrypy.HTTPError(400,
-                                         'SSO error - `{}` not found in auth attributes.'
-                                         .format(SSO_DB.saml2.get_username_attribute()))
+                                         'SSO error - `{}` not found in auth attributes. '
+                                         'Received attributes: {}'
+                                         .format(
+                                             SSO_DB.saml2.get_username_attribute(),
+                                             auth.get_attributes()))
             username = username_attribute[0]
             try:
                 ACCESS_CTRL_DB.get_user(username)
