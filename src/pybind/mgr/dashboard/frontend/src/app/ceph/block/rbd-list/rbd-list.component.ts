@@ -91,19 +91,24 @@ export class RbdListComponent implements OnInit {
     const editAction: CdTableAction = {
       permission: 'update',
       icon: 'fa-pencil',
+      disable: (selection: CdTableSelection) =>
+        !selection.hasSingleSelection || selection.first().cdExecuting,
       routerLink: () => `/block/rbd/edit/${getImageUri()}`,
       name: 'Edit'
     };
     const deleteAction: CdTableAction = {
       permission: 'delete',
       icon: 'fa-times',
+      disable: (selection: CdTableSelection) =>
+        !selection.hasSingleSelection || selection.first().cdExecuting,
       click: () => this.deleteRbdModal(),
       name: 'Delete'
     };
     const copyAction: CdTableAction = {
       permission: 'create',
       buttonCondition: (selection: CdTableSelection) => selection.hasSingleSelection,
-      disable: (selection: CdTableSelection) => !selection.hasSingleSelection,
+      disable: (selection: CdTableSelection) =>
+        !selection.hasSingleSelection || selection.first().cdExecuting,
       icon: 'fa-copy',
       routerLink: () => `/block/rbd/copy/${getImageUri()}`,
       name: 'Copy'

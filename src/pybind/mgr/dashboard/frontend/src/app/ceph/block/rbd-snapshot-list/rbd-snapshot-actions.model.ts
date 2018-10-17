@@ -5,12 +5,15 @@ export class RbdSnapshotActionsModel {
   create: CdTableAction = {
     permission: 'create',
     icon: 'fa-plus',
-    buttonCondition: (selection: CdTableSelection) => !selection.hasSingleSelection,
+    buttonCondition: (selection: CdTableSelection) =>
+      !selection.hasSingleSelection,
     name: 'Create'
   };
   rename: CdTableAction = {
     permission: 'update',
     icon: 'fa-pencil',
+    disable: (selection: CdTableSelection) =>
+      !selection.hasSingleSelection || selection.first().cdExecuting,
     name: 'Rename'
   };
   protect: CdTableAction = {
@@ -18,6 +21,8 @@ export class RbdSnapshotActionsModel {
     icon: 'fa-lock',
     visible: (selection: CdTableSelection) =>
       selection.hasSingleSelection && !selection.first().is_protected,
+    disable: (selection: CdTableSelection) =>
+      !selection.hasSingleSelection || selection.first().cdExecuting,
     name: 'Protect'
   };
   unprotect: CdTableAction = {
@@ -25,26 +30,30 @@ export class RbdSnapshotActionsModel {
     icon: 'fa-unlock',
     visible: (selection: CdTableSelection) =>
       selection.hasSingleSelection && selection.first().is_protected,
+    disable: (selection: CdTableSelection) =>
+      !selection.hasSingleSelection || selection.first().cdExecuting,
     name: 'Unprotect'
   };
   clone: CdTableAction = {
     permission: 'create',
     buttonCondition: (selection: CdTableSelection) => selection.hasSingleSelection,
-    disable: (selection: CdTableSelection) => !selection.hasSingleSelection,
+    disable: (selection: CdTableSelection) =>
+      !selection.hasSingleSelection || selection.first().cdExecuting,
     icon: 'fa-clone',
     name: 'Clone'
   };
   copy: CdTableAction = {
     permission: 'create',
     buttonCondition: (selection: CdTableSelection) => selection.hasSingleSelection,
-    disable: (selection: CdTableSelection) => !selection.hasSingleSelection,
+    disable: (selection: CdTableSelection) =>
+      !selection.hasSingleSelection || selection.first().cdExecuting,
     icon: 'fa-copy',
     name: 'Copy'
   };
   rollback: CdTableAction = {
     permission: 'update',
     disable: (selection: CdTableSelection) =>
-      selection.hasSingleSelection && !selection.first().parent,
+      !selection.hasSingleSelection || selection.first().cdExecuting,
     icon: 'fa-undo',
     name: 'Rollback'
   };
@@ -52,7 +61,7 @@ export class RbdSnapshotActionsModel {
     permission: 'delete',
     icon: 'fa-times',
     disable: (selection: CdTableSelection) =>
-      selection.hasSingleSelection && !selection.first().is_protected,
+      !selection.hasSingleSelection || selection.first().cdExecuting || selection.first().is_protected,
     name: 'Delete'
   };
   ordering = [
