@@ -16,7 +16,6 @@
     "fix:prettier": "prettier --write \"{src,e2e}/**/*.{ts,scss}\"",
     "fix:tslint": "npm run lint:tslint -- --fix",
     "fix": "npm run fix:tslint; npm run fix:prettier"
-
   },
   "private": true,
   "jest": {

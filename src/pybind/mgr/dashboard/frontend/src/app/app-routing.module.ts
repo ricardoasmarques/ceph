@@ -31,6 +31,7 @@ import { NotFoundComponent } from './core/not-found/not-found.component';
 import { BreadcrumbsResolver, IBreadcrumb } from './shared/models/breadcrumbs';
 import { AuthGuardService } from './shared/services/auth-guard.service';
 import { ModuleStatusGuardService } from './shared/services/module-status-guard.service';
+import {NfsListComponent} from "./ceph/block/nfs-list/nfs-list.component";
 
 export class PerformanceCounterBreadcrumbsResolver extends BreadcrumbsResolver {
   resolve(route: ActivatedRouteSnapshot) {
@@ -190,6 +191,18 @@ const routes: Routes = [
           { path: 'edit/:bucket', component: RgwBucketFormComponent, data: { breadcrumbs: 'Edit' } }
         ]
       }
+    ]
+  },
+  // NFS
+  {
+    path: 'nfs',
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
+    data: { breadcrumbs: 'NFS Demo' },
+    children: [
+      { path: '', component: NfsListComponent },
+      //{ path: 'add', component: PoolFormComponent, data: { breadcrumbs: 'Add' } },
+      //{ path: 'edit/:name', component: PoolFormComponent, data: { breadcrumbs: 'Edit' } }
     ]
   },
   // Dashboard Settings

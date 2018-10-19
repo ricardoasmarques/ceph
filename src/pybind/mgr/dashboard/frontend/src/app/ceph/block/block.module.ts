@@ -21,6 +21,7 @@ import { RbdTrashListComponent } from './rbd-trash-list/rbd-trash-list.component
 import { RbdTrashMoveModalComponent } from './rbd-trash-move-modal/rbd-trash-move-modal.component';
 import { RbdTrashPurgeModalComponent } from './rbd-trash-purge-modal/rbd-trash-purge-modal.component';
 import { RbdTrashRestoreModalComponent } from './rbd-trash-restore-modal/rbd-trash-restore-modal.component';
+import {NfsListComponent} from "./nfs-list/nfs-list.component";
 
 @NgModule({
   entryComponents: [
@@ -56,7 +57,8 @@ import { RbdTrashRestoreModalComponent } from './rbd-trash-restore-modal/rbd-tra
     RbdTrashMoveModalComponent,
     RbdImagesComponent,
     RbdTrashRestoreModalComponent,
-    RbdTrashPurgeModalComponent
+    RbdTrashPurgeModalComponent,
+    NfsListComponent
   ]
 })
 export class BlockModule {}

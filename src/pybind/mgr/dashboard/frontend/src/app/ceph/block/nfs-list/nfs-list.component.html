@@ -1,0 +1,13 @@
+<button (click)="startAction()">Start</button>
+<button (click)="stopAction()">Stop</button>
+<br>
+<cd-table #table
+          [data]="nfsList"
+          columnMode="flex"
+          [columns]="columns"
+          identifier="id"
+          forceIdentifier="true"
+          selectionType="single"
+          (fetchData)="getNfsList($event)"
+          (updateSelection)="updateSelection($event)">
+</cd-table>
