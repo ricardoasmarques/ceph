@@ -11,6 +11,9 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 import { SharedModule } from '../../shared/shared.module';
+import { IscsiTabsComponent } from './iscsi-tabs/iscsi-tabs.component';
+import { IscsiTargetFormComponent } from './iscsi-target-form/iscsi-target-form.component';
+import { IscsiTargetListComponent } from './iscsi-target-list/iscsi-target-list.component';
 import { IscsiComponent } from './iscsi/iscsi.component';
 import { MirrorHealthColorPipe } from './mirror-health-color.pipe';
 import { MirroringComponent } from './mirroring/mirroring.component';
@@ -49,6 +52,9 @@ import { RbdTrashRestoreModalComponent } from './rbd-trash-restore-modal/rbd-tra
   declarations: [
     RbdListComponent,
     IscsiComponent,
+    IscsiTabsComponent,
+    IscsiTargetFormComponent,
+    IscsiTargetListComponent,
     MirroringComponent,
     MirrorHealthColorPipe,
     RbdDetailsComponent,

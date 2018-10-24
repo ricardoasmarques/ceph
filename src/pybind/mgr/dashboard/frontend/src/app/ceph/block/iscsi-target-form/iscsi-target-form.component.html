@@ -1,0 +1,49 @@
+<div class="col-sm-12 col-lg-6">
+  <form name="targetForm"
+        class="form-horizontal"
+        #formDir="ngForm"
+        [formGroup]="targetForm"
+        novalidate>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <span i18n>Create</span> Target
+        </h3>
+      </div>
+      <div class="panel-body">
+
+        <!-- Target IQN -->
+        <div class="form-group">
+          <label i18n
+                 class="control-label col-sm-3"
+                 for="targetIqn">Target IQN
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control"
+                   type="text"
+                   id="targetIqn"
+                   name="targetIqn"
+                   formControlName="targetIqn">
+          </div>
+        </div>
+
+      </div>
+      <div class="panel-footer">
+        <div class="button-group text-right">
+          <cd-submit-button [form]="formDir"
+                            type="button"
+                            (submitAction)="submit()">
+            <span i18n>Create</span> Target
+          </cd-submit-button>
+          <button i18n
+                  type="button"
+                  class="btn btn-sm btn-default"
+                  routerLink="/block/iscsi/targets">
+            Back
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>

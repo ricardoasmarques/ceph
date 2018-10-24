@@ -1,0 +1,26 @@
+<cd-iscsi-tabs></cd-iscsi-tabs>
+
+<h2>Config</h2>
+<pre>{{ config | json }}</pre>
+
+<h2>Targets</h2>
+<p><button (click)="addTarget('iqn.2003-01.com.redhat.iscsi-gw:iscsi-igw')">Add Target - <strong>iqn.2003-01.com.redhat.iscsi-gw:iscsi-igw</strong></button></p>
+<p><button (click)="addTarget('iqn.2003-01.com.redhat.iscsi-gw:iscsi-igw')">Add Target - <strong>iqn.2003-01.com.redhat.iscsi-gw:iscsi-igw2</strong></button></p>
+
+<h2>Gateways</h2>
+<ul>
+  <li *ngFor="let gateway of gateways">{{ gateway }}</li>
+</ul>
+<p><button (click)="addGateway('node1', '192.168.100.201')">Add Gateway - <strong>node1, 192.168.100.201</strong></button></p>
+<p><button (click)="addGateway('node2', '192.168.100.202')">Add Gateway - <strong>node2, 192.168.100.202</strong></button></p>
+
+<h2>Disks</h2>
+<p>TODO - add disk</p>
+
+<h2>Clients</h2>
+<p>TODO - add client</p>
+<p>TODO - set auth</p>
+<p>TODO - add disk to client</p>
+
+<h2>Groups</h2>
+<p>???</p>
