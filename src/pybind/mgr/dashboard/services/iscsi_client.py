@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import json
+
 from requests.auth import HTTPBasicAuth
 
 from ..rest_client import RestClient
@@ -29,12 +31,56 @@ class IscsiClient(RestClient):
         return request()
 
     @RestClient.api_put('/api/target/{target_iqn}')
-    def create_target(self, target_iqn, request=None):
-        return request()
+    def create_target(self, target_iqn, target_controls, request=None):
+        return request({
+            'controls': json.dumps(target_controls)
+        })
 
-    @RestClient.api_put('/api/gateway/{gateway_name}')
-    def create_gateway(self, gateway_name, ip_address, request=None):
+    @RestClient.api_put('/api/target/{target_iqn}')
+    def reconfigure_target(self, target_iqn, target_controls, request=None):
+        return request({
+            'mode': 'reconfigure',
+            'controls': json.dumps(target_controls)
+        })
+
+    @RestClient.api_put('/api/gateway/{target_iqn}/{gateway_name}')
+    def create_gateway(self, target_iqn, gateway_name, ip_address, request=None):
         return request({
             'ip_address': ip_address,
             'skipchecks': 'true' # FIXME
+        })
+
+    @RestClient.api_put('/api/disk/{image_id}')
+    def create_disk(self, image_id, request=None):
+        return request({
+            'mode': 'create'
+        })
+
+    @RestClient.api_put('/api/disk/{image_id}')
+    def reconfigure_disk(self, image_id, controls, request=None):
+        return request({
+            'controls': json.dumps(controls),
+            'mode': 'reconfigure'
+        })
+
+    @RestClient.api_put('/api/targetlun/{target_iqn}')
+    def create_target_lun(self, target_iqn, image_id, request=None):
+        return request({
+            'disk': image_id
+        })
+
+    @RestClient.api_put('/api/client/{target_iqn}/{client_iqn}')
+    def create_client(self, target_iqn, client_iqn, request=None):
+        return request()
+
+    @RestClient.api_put('/api/clientlun/{target_iqn}/{client_iqn}')
+    def create_client_lun(self, target_iqn, client_iqn, image_id, request=None):
+        return request({
+            'disk': image_id
+        })
+
+    @RestClient.api_put('/api/clientauth/{target_iqn}/{client_iqn}')
+    def create_client_auth(self, target_iqn, client_iqn, chap, request=None):
+        return request({
+            'chap': chap
         })
