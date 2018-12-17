@@ -1,28 +1,34 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from . import ApiController, RESTController
-from .. import logger
+from . import ApiController, RESTController, BaseController, Endpoint, ReadPermission
+from ..rest_client import RequestException
 from ..security import Scope
 from ..services.iscsi_client import IscsiClient
-from ..rest_client import RequestException
-from ..exceptions import DashboardException
 
 
-# TODO  tasks / async calls
-# TODO secure = True
-@ApiController('/iscsi/target', Scope.ISCSI, secure=False)
+@ApiController('/iscsi', Scope.ISCSI)
+class Iscsi(BaseController):
+
+    @Endpoint()
+    @ReadPermission
+    def status(self):
+        status = {'available': False}
+        try:
+            IscsiClient.instance().get_config()
+            status['available'] = True
+        except RequestException:
+            pass
+        return status
+
+
+@ApiController('/iscsi/target', Scope.ISCSI)
 class IscsiTarget(RESTController):
 
     def list(self):
         config = IscsiClient.instance().get_config()
         targets = []
         for target_iqn, target_config in config['targets'].items():
-            # TODO add support for groups
-            if len(target_config['groups'].keys()) > 0:
-                raise DashboardException(msg='iSCSI target groups are not supported',
-                                         code='groups_not_support',
-                                         component='iscsi')
             portals = []
             for host, portal_config in target_config['portals'].items():
                 portal = {
@@ -62,53 +68,29 @@ class IscsiTarget(RESTController):
                     }
                 }
                 clients.append(client)
+            groups = []
+            for group_id, group_config in target_config['groups'].items():
+                group_disks = []
+                for group_disk_key, _ in group_config['disks'].items():
+                    pool, image = group_disk_key.split('.', 1)
+                    group_disk = {
+                        'pool': pool,
+                        'image': image
+                    }
+                    group_disks.append(group_disk)
+                group = {
+                    'group_id': group_id,
+                    'disks': group_disks,
+                    'members': group_config['members'],
+                }
+                groups.append(group)
             target = {
                 'target_iqn': target_iqn,
                 'portals': portals,
                 'disks': disks,
                 'clients': clients,
+                'groups': groups,
                 'target_controls': target_config['controls'],
             }
             targets.append(target)
         return targets
-
-    def create(self, target_iqn=None, target_controls=None,
-               portals=[], disks=[], clients=[]):
-        # TODO rimarques - validations
-        try:
-            logger.debug('Creating target {}'.format(target_iqn))
-            IscsiClient.instance().create_target(target_iqn, target_controls)
-            for portal in portals:
-                host = portal['host']
-                ip = portal['ip']
-                logger.debug('Creating portal {}:{}'.format(host, ip))
-                IscsiClient.instance().create_gateway(target_iqn, host, ip)
-            for disk in disks:
-                pool = disk['pool']
-                image = disk['image']
-                image_id = '{}.{}'.format(pool, image)
-                logger.debug('Creating disk {}'.format(image_id))
-                IscsiClient.instance().create_disk(image_id)
-                logger.debug('Creating target disk {}'.format(image_id))
-                IscsiClient.instance().create_target_lun(target_iqn, image_id)
-                controls = disk['controls']
-                if controls:
-                    IscsiClient.instance().reconfigure_disk(image_id, controls)
-            for client in clients:
-                client_iqn = client['client_iqn']
-                logger.debug('Creating client {}'.format(client_iqn))
-                IscsiClient.instance().create_client(target_iqn, client_iqn)
-                for lun in client['luns']:
-                    pool = lun['pool']
-                    image = lun['image']
-                    image_id = '{}.{}'.format(pool, image)
-                    IscsiClient.instance().create_client_lun(target_iqn, client_iqn, image_id)
-                user = client['auth']['user']
-                password = client['auth']['password']
-                chap = '{}/{}'.format(user, password) if user and password else ''
-                IscsiClient.instance().create_client_auth(target_iqn, client_iqn, chap)
-            if target_controls:
-                IscsiClient.instance().reconfigure_target(target_iqn, target_controls)
-
-        except RequestException as e:
-            raise DashboardException(msg=e.message, component='iscsi')
