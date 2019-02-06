@@ -27,6 +27,7 @@ export class IscsiTargetImageSettingsModalComponent implements OnInit {
     const currentSettings = this.imagesSettings[this.image];
     this.helpText = this.iscsiService.imageAdvancedSettings;
 
+    // TODO - check the selected/default backstore
     _.forIn(this.disk_default_controls, (value, key) => {
       fg[key] = new FormControl(currentSettings[key]);
     });

@@ -435,6 +435,7 @@ class IscsiTarget(RESTController):
                 'pool': disk_config['pool'],
                 'image': disk_config['image'],
                 'controls': disk_config['controls'],
+                'backstore': disk_config['backstore'],
             }
             disks.append(disk)
         disks = IscsiTarget._sorted_disks(disks)
