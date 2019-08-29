@@ -25,7 +25,8 @@ from ..tools import TaskManager
 @UiApiController('/iscsi', Scope.ISCSI)
 class IscsiUi(BaseController):
 
-    REQUIRED_CEPH_ISCSI_CONFIG_VERSION = 10
+    REQUIRED_CEPH_ISCSI_CONFIG_MIN_VERSION = 10
+    REQUIRED_CEPH_ISCSI_CONFIG_MAX_VERSION = 11
 
     @Endpoint()
     @ReadPermission
@@ -43,10 +44,13 @@ class IscsiUi(BaseController):
                     status['message'] = 'Gateway {} is inaccessible'.format(gateway)
                     return status
             config = IscsiClient.instance().get_config()
-            if config['version'] != IscsiUi.REQUIRED_CEPH_ISCSI_CONFIG_VERSION:
-                status['message'] = 'Unsupported `ceph-iscsi` config version. Expected {} but ' \
-                                    'found {}.'.format(IscsiUi.REQUIRED_CEPH_ISCSI_CONFIG_VERSION,
-                                                       config['version'])
+            if config['version'] < IscsiUi.REQUIRED_CEPH_ISCSI_CONFIG_MIN_VERSION or \
+                config['version'] > IscsiUi.REQUIRED_CEPH_ISCSI_CONFIG_MAX_VERSION:
+                status['message'] = 'Unsupported `ceph-iscsi` config version. ' \
+                                    'Expected >= {} and <= {} but found' \
+                                    ' {}.'.format(IscsiUi.REQUIRED_CEPH_ISCSI_CONFIG_MIN_VERSION,
+                                                  IscsiUi.REQUIRED_CEPH_ISCSI_CONFIG_MAX_VERSION,
+                                                  config['version'])
                 return status
             status['available'] = True
         except RequestException as e:
@@ -60,6 +64,13 @@ class IscsiUi(BaseController):
                     status['message'] = content_message
 
         return status
+
+    @Endpoint()
+    @ReadPermission
+    def version(self):
+        return {
+            'ceph_iscsi_config_version': IscsiClient.instance().get_config()['version']
+        }
 
     @Endpoint()
     @ReadPermission
@@ -216,7 +227,7 @@ class IscsiTarget(RESTController):
 
     @iscsi_target_task('create', {'target_iqn': '{target_iqn}'})
     def create(self, target_iqn=None, target_controls=None, acl_enabled=None,
-               portals=None, disks=None, clients=None, groups=None):
+               auth=None, portals=None, disks=None, clients=None, groups=None):
         target_controls = target_controls or {}
         portals = portals or []
         disks = disks or []
@@ -229,12 +240,12 @@ class IscsiTarget(RESTController):
                                      code='target_already_exists',
                                      component='iscsi')
         IscsiTarget._validate(target_iqn, target_controls, portals, disks, groups)
-        IscsiTarget._create(target_iqn, target_controls, acl_enabled, portals, disks, clients,
-                            groups, 0, 100, config)
+        IscsiTarget._create(target_iqn, target_controls, acl_enabled, auth, portals, disks,
+                            clients, groups, 0, 100, config)
 
     @iscsi_target_task('edit', {'target_iqn': '{target_iqn}'})
     def set(self, target_iqn, new_target_iqn=None, target_controls=None, acl_enabled=None,
-            portals=None, disks=None, clients=None, groups=None):
+            auth=None, portals=None, disks=None, clients=None, groups=None):
         target_controls = target_controls or {}
         portals = IscsiTarget._sorted_portals(portals)
         disks = IscsiTarget._sorted_disks(disks)
@@ -253,8 +264,8 @@ class IscsiTarget(RESTController):
         IscsiTarget._validate(new_target_iqn, target_controls, portals, disks, groups)
         config = IscsiTarget._delete(target_iqn, config, 0, 50, new_target_iqn, target_controls,
                                      portals, disks, clients, groups)
-        IscsiTarget._create(new_target_iqn, target_controls, acl_enabled, portals, disks, clients,
-                            groups, 50, 100, config)
+        IscsiTarget._create(new_target_iqn, target_controls, acl_enabled, auth, portals, disks,
+                            clients, groups, 50, 100, config)
 
     @staticmethod
     def _delete(target_iqn, config, task_progress_begin, task_progress_end, new_target_iqn=None,
@@ -540,7 +551,7 @@ class IscsiTarget(RESTController):
 
     @staticmethod
     def _create(target_iqn, target_controls, acl_enabled,
-                portals, disks, clients, groups,
+                auth, portals, disks, clients, groups,
                 task_progress_begin, task_progress_end, config):
         target_config = config['targets'].get(target_iqn, None)
         TaskManager.current_task().set_progress(task_progress_begin)
@@ -565,8 +576,20 @@ class IscsiTarget(RESTController):
                                                                                    ip_list)
                 TaskManager.current_task().inc_progress(task_progress_inc)
             targetauth_action = ('enable_acl' if acl_enabled else 'disable_acl')
-            IscsiClient.instance(gateway_name=gateway_name).update_targetauth(target_iqn,
-                                                                              targetauth_action)
+            IscsiClient.instance(gateway_name=gateway_name).update_targetacl(target_iqn,
+                                                                             targetauth_action)
+
+            # Target level authentication was introduced in ceph-iscsi config v11
+            if config['version'] > 10:
+                user = auth['user']
+                password = auth['password']
+                mutual_user = auth['mutual_user']
+                mutual_password = auth['mutual_password']
+                IscsiClient.instance(gateway_name=gateway_name).update_targetauth(target_iqn,
+                                                                                  user,
+                                                                                  password,
+                                                                                  mutual_user,
+                                                                                  mutual_password)
             for disk in disks:
                 pool = disk['pool']
                 image = disk['image']
@@ -706,6 +729,18 @@ class IscsiTarget(RESTController):
             'target_controls': target_controls,
             'acl_enabled': acl_enabled
         }
+        # Target level authentication was introduced in ceph-iscsi config v11
+        if config['version'] > 10:
+            target_user = target_config['auth']['username']
+            target_password = target_config['auth']['password']
+            target_mutual_user = target_config['auth']['mutual_username']
+            target_mutual_password = target_config['auth']['mutual_password']
+            target['auth'] = {
+                'user': target_user,
+                'password': target_password,
+                'mutual_user': target_mutual_user,
+                'mutual_password': target_mutual_password
+            }
         return target
 
     @staticmethod
