@@ -5,6 +5,7 @@ import { I18n } from '@ngx-translate/i18n-polyfill';
 import { Components } from '../enum/components.enum';
 import { FinishedTask } from '../models/finished-task';
 import { Task } from '../models/task';
+import { NfsExportPipe } from '../pipes/nfs-export.pipe';
 
 export class TaskMessageOperation {
   running: string;
@@ -57,7 +58,7 @@ class TaskMessage {
   providedIn: 'root'
 })
 export class TaskMessageService {
-  constructor(private i18n: I18n) {}
+  constructor(private i18n: I18n, private nfsExportPipe: NfsExportPipe) {}
 
   defaultMessage = this.newTaskMessage(
     new TaskMessageOperation(this.i18n('Executing'), this.i18n('execute'), this.i18n('Executed')),
@@ -380,8 +381,11 @@ export class TaskMessageService {
   }
 
   nfs(metadata) {
+    metadata.export = this.nfsExportPipe.transform(metadata);
     return this.i18n(`NFS {{nfs_id}}`, {
-      nfs_id: `'${metadata.cluster_id}:${metadata.export_id ? metadata.export_id : metadata.path}'`
+      nfs_id: `'${metadata.cluster_id}:${
+        metadata.export_id ? metadata.export_id : metadata.export
+      }'`
     });
   }
 

@@ -510,6 +510,7 @@ export class NfsFormComponent implements OnInit {
       action = this.taskWrapper.wrapTaskAroundCall({
         task: new FinishedTask('nfs/create', {
           path: requestModel.path,
+          pseudo: requestModel.pseudo,
           fsal: requestModel.fsal,
           cluster_id: requestModel.cluster_id
         }),

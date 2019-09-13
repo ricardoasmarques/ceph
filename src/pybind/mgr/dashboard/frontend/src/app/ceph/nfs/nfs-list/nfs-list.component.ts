@@ -17,6 +17,7 @@ import { CdTableColumn } from '../../../shared/models/cd-table-column';
 import { CdTableSelection } from '../../../shared/models/cd-table-selection';
 import { FinishedTask } from '../../../shared/models/finished-task';
 import { Permission } from '../../../shared/models/permissions';
+import { NfsExportPipe } from '../../../shared/pipes/nfs-export.pipe';
 import { AuthStorageService } from '../../../shared/services/auth-storage.service';
 import { TaskListService } from '../../../shared/services/task-list.service';
 import { TaskWrapperService } from '../../../shared/services/task-wrapper.service';
@@ -41,31 +42,35 @@ export class NfsListComponent implements OnInit, OnDestroy {
   selection = new CdTableSelection();
   summaryDataSubscription: Subscription;
   viewCacheStatus: any;
+  builders: any;
   exports: any[];
   tableActions: CdTableAction[];
   isDefaultCluster = false;
 
   modalRef: BsModalRef;
 
-  builders = {
-    'nfs/create': (metadata) => {
-      return {
-        path: metadata['path'],
-        cluster_id: metadata['cluster_id'],
-        fsal: metadata['fsal']
-      };
-    }
-  };
-
   constructor(
     private authStorageService: AuthStorageService,
     private i18n: I18n,
     private modalService: BsModalService,
     private nfsService: NfsService,
+    private nfsExportPipe: NfsExportPipe,
     private taskListService: TaskListService,
     private taskWrapper: TaskWrapperService,
     public actionLabels: ActionLabelsI18n
   ) {
+    this.builders = {
+      'nfs/create': (metadata) => {
+        return {
+          path: metadata['path'],
+          pseudo: metadata['pseudo'],
+          export: this.nfsExportPipe.transform(metadata),
+          cluster_id: metadata['cluster_id'],
+          fsal: metadata['fsal']
+        };
+      }
+    };
+
     this.permission = this.authStorageService.getPermissions().nfs;
     const getNfsUri = () =>
       this.selection.first() &&
@@ -102,7 +107,7 @@ export class NfsListComponent implements OnInit, OnDestroy {
     this.columns = [
       {
         name: this.i18n('Export'),
-        prop: 'path',
+        prop: 'export',
         flexGrow: 2,
         cellTransformation: CellTemplate.executing
       },
@@ -169,6 +174,7 @@ export class NfsListComponent implements OnInit, OnDestroy {
     resp.forEach((nfs) => {
       nfs.id = `${nfs.cluster_id}:${nfs.export_id}`;
       nfs.state = 'LOADING';
+      nfs.export = this.nfsExportPipe.transform(nfs);
       result = result.concat(nfs);
     });
 

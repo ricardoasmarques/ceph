@@ -9,6 +9,7 @@ import { NotificationType } from '../enum/notification-type.enum';
 import { CdNotificationConfig } from '../models/cd-notification';
 import { FinishedTask } from '../models/finished-task';
 import { CdDatePipe } from '../pipes/cd-date.pipe';
+import { NfsExportPipe } from '../pipes/nfs-export.pipe';
 import { NotificationService } from './notification.service';
 import { TaskMessageService } from './task-message.service';
 
@@ -24,6 +25,7 @@ describe('NotificationService', () => {
     providers: [
       CdDatePipe,
       DatePipe,
+      NfsExportPipe,
       NotificationService,
       TaskMessageService,
       { provide: ToastrService, useValue: toastFakeService },

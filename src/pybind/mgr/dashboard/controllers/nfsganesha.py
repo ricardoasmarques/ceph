@@ -120,7 +120,7 @@ class NFSGaneshaExports(RESTController):
                  for export in GaneshaConf.instance(cluster_id).list_exports()])
         return result
 
-    @NfsTask('create', {'path': '{path}', 'fsal': '{fsal.name}',
+    @NfsTask('create', {'path': '{path}', 'pseudo': '{pseudo}', 'fsal': '{fsal.name}',
                         'cluster_id': '{cluster_id}'}, 2.0)
     @EndpointDoc("Creates a new NFS-Ganesha export",
                  parameters=CREATE_EXPORT_SCHEMA,

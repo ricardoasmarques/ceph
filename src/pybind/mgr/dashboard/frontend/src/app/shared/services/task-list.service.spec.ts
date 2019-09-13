@@ -10,6 +10,7 @@ import {
   i18nProviders
 } from '../../../testing/unit-test-helper';
 import { ExecutingTask } from '../models/executing-task';
+import { NfsExportPipe } from '../pipes/nfs-export.pipe';
 import { SummaryService } from './summary.service';
 import { TaskListService } from './task-list.service';
 import { TaskMessageService } from './task-message.service';
@@ -28,7 +29,7 @@ describe('TaskListService', () => {
   };
 
   configureTestBed({
-    providers: [TaskListService, TaskMessageService, SummaryService, i18nProviders],
+    providers: [NfsExportPipe, TaskListService, TaskMessageService, SummaryService, i18nProviders],
     imports: [HttpClientTestingModule, RouterTestingModule]
   });
 

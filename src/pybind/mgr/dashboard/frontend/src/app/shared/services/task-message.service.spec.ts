@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 import { configureTestBed, i18nProviders } from '../../../testing/unit-test-helper';
 import { FinishedTask } from '../models/finished-task';
 import { TaskException } from '../models/task-exception';
+import { NfsExportPipe } from '../pipes/nfs-export.pipe';
 import { TaskMessageOperation, TaskMessageService } from './task-message.service';
 
 describe('TaskManagerMessageService', () => {
@@ -12,7 +13,7 @@ describe('TaskManagerMessageService', () => {
   let finishedTask: FinishedTask;
 
   configureTestBed({
-    providers: [TaskMessageService, i18nProviders]
+    providers: [NfsExportPipe, TaskMessageService, i18nProviders]
   });
 
   beforeEach(() => {
