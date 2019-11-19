@@ -98,15 +98,38 @@
           <ng-container *ngFor="let section of availSections">
             <div class="form-group row"
                  *ngIf="type === 'bool'">
-              <div class="offset-sm-3 col-sm-9">
-                <div class="custom-control custom-checkbox">
-                  <input type="checkbox"
-                         class="custom-control-input"
-                         [id]="section"
-                         [formControlName]="section">
-                  <label class="custom-control-label"
-                         [for]="section">{{ section }}
-                  </label>
+              <label class="col-form-label col-sm-3"
+                     [for]="section">{{ section }}
+              </label>
+              <div class="col-sm-9">
+                <div class="input-group">
+                  <div class="form-control-plaintext border-bottom">
+                    <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio"
+                             [id]="section + 'True'"
+                             [value]="true"
+                             [formControlName]="section"
+                             class="custom-control-input">
+                      <label class="custom-control-label"
+                             [for]="section + 'True'">true</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio"
+                             [id]="section + 'False'"
+                             [value]="false"
+                             class="custom-control-input"
+                             [formControlName]="section">
+                      <label class="custom-control-label"
+                             [for]="section + 'False'">false</label>
+                    </div>
+                  </div>
+                  <span class="input-group-append border-bottom">
+                    <button type="button"
+                            class="btn btn-light no-border"
+                            (click)="reset(section)">
+                      <i [ngClass]="[icons.destroy]"></i>
+                    </button>
+                  </span>
                 </div>
               </div>
             </div>

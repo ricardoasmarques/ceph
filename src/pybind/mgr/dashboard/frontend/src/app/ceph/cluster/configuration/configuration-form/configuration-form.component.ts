@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import { ConfigurationService } from '../../../../shared/api/configuration.service';
 import { ConfigFormModel } from '../../../../shared/components/config-option/config-option.model';
 import { ConfigOptionTypes } from '../../../../shared/components/config-option/config-option.types';
+import { Icons } from '../../../../shared/enum/icons.enum';
 import { NotificationType } from '../../../../shared/enum/notification-type.enum';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -28,6 +29,7 @@ export class ConfigurationFormComponent implements OnInit {
   maxValue: number;
   patternHelpText: string;
   availSections = ['global', 'mon', 'mgr', 'osd', 'mds', 'client'];
+  icons = Icons;
 
   constructor(
     private route: ActivatedRoute,
@@ -130,12 +132,16 @@ export class ConfigurationFormComponent implements OnInit {
     this.humanReadableType = currentType.humanReadable;
   }
 
+  reset(section) {
+    this.configForm.get(section).setValue(null);
+  }
+
   createRequest(): ConfigFormCreateRequestModel | null {
     const values = [];
 
     this.availSections.forEach((section) => {
       const sectionValue = this.configForm.getValue(section);
-      if (sectionValue) {
+      if (!_.isNull(sectionValue)) {
         values.push({ section: section, value: sectionValue });
       }
     });
