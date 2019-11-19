@@ -140,12 +140,21 @@
                      [for]="section">{{ section }}
               </label>
               <div class="col-sm-9">
-                <input class="form-control"
-                       [type]="inputType"
-                       [id]="section"
-                       [placeholder]="humanReadableType"
-                       [formControlName]="section"
-                       [step]="getStep(type, this.configForm.getValue(section))">
+                <div class="input-group">
+                  <input class="form-control"
+                         [type]="inputType"
+                         [id]="section"
+                         [placeholder]="humanReadableType"
+                         [formControlName]="section"
+                         [step]="getStep(type, this.configForm.getValue(section))">
+                  <span class="input-group-append">
+                    <button type="button"
+                            class="btn btn-light"
+                            (click)="reset(section)">
+                      <i [ngClass]="[icons.destroy]"></i>
+                    </button>
+                  </span>
+                </div>
                 <span class="invalid-feedback"
                       *ngIf="configForm.showError(section, formDir, 'pattern')">
                   {{ patternHelpText }}
