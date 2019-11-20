@@ -187,6 +187,7 @@ BuildRequires:	pkgconfig
 BuildRequires:  procps
 BuildRequires:	python%{_python_buildid}
 BuildRequires:	python%{_python_buildid}-devel
+BuildRequires:	python%{_python_buildid}-ws4py
 BuildRequires:	snappy-devel
 BuildRequires:	sudo
 BuildRequires:	udev

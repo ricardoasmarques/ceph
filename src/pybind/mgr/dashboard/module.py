@@ -53,6 +53,8 @@ from .settings import options_command_list, options_schema_list, \
 
 from .plugins import PLUGIN_MANAGER
 from .plugins import feature_toggles, debug  # noqa # pylint: disable=unused-import
+from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
+from .websockets.summary_ws import SummaryWebSocket
 
 
 PLUGIN_MANAGER.hook.init()
@@ -125,6 +127,8 @@ class CherryPyConfig(object):
         cherrypy.tools.request_logging = RequestLoggingTool()
         cherrypy.tools.dashboard_exception_handler = HandlerWrapperTool(dashboard_exception_handler,
                                                                         priority=31)
+        WebSocketPlugin(cherrypy.engine).subscribe()
+        cherrypy.tools.websocket = WebSocketTool()
 
         # Apply the 'global' CherryPy configuration.
         config = {
@@ -309,6 +313,21 @@ class Module(MgrModule, CherryPyConfig):
             config[purl] = {
                 'request.dispatch': mapper
             }
+
+        class WsRoot(object):
+            @cherrypy.expose
+            def summary(self):
+                """
+                Method must exist for ''WebSocketTool'' to work, 404 returned otherwise.
+                """
+
+        cherrypy.tree.mount(WsRoot(), '{}/ws'.format(self.url_prefix), config={
+            '/summary':{
+                'tools.gzip.on': False,
+                'tools.websocket.on': True,
+                'tools.websocket.handler_cls': SummaryWebSocket
+            }
+        })
 
         cherrypy.tree.mount(None, config=config)
 
