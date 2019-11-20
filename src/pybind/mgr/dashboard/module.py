@@ -54,7 +54,7 @@ from .settings import options_command_list, options_schema_list, \
 from .plugins import PLUGIN_MANAGER
 from .plugins import feature_toggles, debug  # noqa # pylint: disable=unused-import
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from .websockets.summary_ws import SummaryWebSocket
+from .websocket import WebSocketHandler
 
 
 PLUGIN_MANAGER.hook.init()
@@ -316,16 +316,17 @@ class Module(MgrModule, CherryPyConfig):
 
         class WsRoot(object):
             @cherrypy.expose
-            def summary(self):
+            def main(self):
                 """
                 Method must exist for ''WebSocketTool'' to work, 404 returned otherwise.
                 """
+                pass
 
         cherrypy.tree.mount(WsRoot(), '{}/ws'.format(self.url_prefix), config={
-            '/summary':{
+            '/main': {
                 'tools.gzip.on': False,
                 'tools.websocket.on': True,
-                'tools.websocket.handler_cls': SummaryWebSocket
+                'tools.websocket.handler_cls': WebSocketHandler
             }
         })
 

@@ -92,4 +92,7 @@ class Summary(BaseController):
         }
         if self._has_permissions(Permission.READ, Scope.RBD_MIRRORING):
             result['rbd_mirroring'] = self._rbd_mirroring()
+        # TODO remove
+        from .. import websocket
+        websocket.WebSocketBroker.send('sum', result)
         return result
