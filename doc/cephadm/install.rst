@@ -110,14 +110,17 @@ Enable Ceph CLI
 ===============
 
 Cephadm does not require any Ceph packages to be installed on the
-host.  However, we recommend enabling easy access to the the ``ceph``
+host.  However, we recommend enabling easy access to the ``ceph``
 command.  There are several ways to do this:
 
 * The ``cephadm shell`` command launches a bash shell in a container
   with all of the Ceph packages installed.  By default, if
   configuration and keyring files are found in ``/etc/ceph`` on the
   host, they are passed into the container environment so that the
-  shell is fully functional::
+  shell is fully functional. The current directory will appear under
+  ``/mnt`` inside the container unless ``--mount <path>`` is given, in
+  which case ``<path>`` (a file or directory on the host) will be used
+  instead of the current directory::
 
     # cephadm shell
 
